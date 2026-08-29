@@ -40,6 +40,10 @@ feature-map validate
 3. Writes `.feature-map.yaml` defaults when missing
 4. Appends an `AGENTS.md` block (skip with `--no-agents`)
 5. Writes `bin/feature-map` as a repo-local shim (skip with `--no-shim`)
+6. Offers to launch your agent harness (claude, cursor-agent, opencode, grok,
+   codex, gemini, pi) to scour the repo and author the first maps. Skip the
+   prompt with `-y` and pick a harness directly with `-h <name>` (e.g.
+   `feature-map init -y -h claude`).
 
 Refresh the skill after upgrading the package:
 
@@ -60,7 +64,8 @@ feature-map init --upgrade-skill
 | `check` | Stale `entry_points` / `core_components` paths |
 | `impact <file>` | Which maps reference a file |
 | `stats` | Coverage summary |
-| `init` / `init <name>` | Bootstrap repo or scaffold a map |
+| `init [-y] [-h <harness>]` | Bootstrap repo; optionally launch a harness to author maps |
+| `init <name> [--force]` | Scaffold a map from the template |
 | `install` | Setup status |
 | `--json` / `--version` | Machine output / version |
 

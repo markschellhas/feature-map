@@ -19,6 +19,7 @@ Global flags: `--json`, `--version`
 | `impact <file> [--transitive] [--json]` | Features referencing a file |
 | `stats [--json]` | Coverage statistics |
 | `init` | Bootstrap `.features/`, agent skill, config, AGENTS.md, shim |
+| `init [-y] [-h <harness>]` | Also offer/launch a harness (claude\|cursor-agent\|opencode\|grok\|codex\|gemini\|pi) to author maps |
 | `init <name> [--force]` | Scaffold `.features/<name>.yaml` |
 | `init --upgrade-skill` | Refresh the agent skill from the installed package |
 | `install [--json]` | Verify install and repo setup |
@@ -37,6 +38,7 @@ feature-map check --json
 feature-map impact src/app.py
 feature-map stats --json
 feature-map init
+feature-map init -y -h claude
 feature-map init billing --force
 ```
 

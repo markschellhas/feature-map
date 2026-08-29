@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- After bootstrapping, `feature-map init` offers to launch your agent harness
+  (`claude`, `cursor-agent`, `opencode`, `grok`, `codex`, `gemini`, `pi`) to
+  scour the repo and author the first maps, with an arrow-key picker when
+  multiple harnesses are on PATH. Shortcut with `-y/--yes` and
+  `-h/--harness <name>`; prompts are skipped for `--json` and non-TTY runs.
 - npm package `feature-map-cli` (`npm install -g feature-map-cli`) wraps the
   PyPI CLI in a local virtualenv. Still requires Python 3.8+.
 

@@ -2,6 +2,7 @@ from pathlib import Path
 
 from feature_map.bootstrap import bootstrap_repo, ensure_features_dir
 from feature_map.errors import CliError
+from feature_map.harness import offer_authoring
 from feature_map.loader import normalize_slug
 from feature_map.paths import template_path
 
@@ -45,6 +46,8 @@ def run_bootstrap(
     shim: bool = True,
     force: bool = False,
     as_json: bool = False,
+    yes: bool = False,
+    harness: str = None,
 ):
     payload = bootstrap_repo(
         repo_root,
@@ -64,6 +67,8 @@ def run_bootstrap(
         print(f"  shim: {payload['shim']}")
     if payload.get("agents"):
         print(f"  AGENTS.md: {payload['agents']}")
+
+    offer_authoring(repo_root, payload["skill"], yes=yes, harness=harness)
     return payload
 
 

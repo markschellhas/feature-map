@@ -17,6 +17,7 @@ from feature_map.commands.validate_cmd import run_validate
 from feature_map.config import load_config
 from feature_map.discover import find_features_dir, find_repo_root
 from feature_map.errors import CliError, FeaturesNotFoundError
+from feature_map.harness import HARNESSES
 from feature_map.output import emit, emit_error
 
 COMMANDS = {
@@ -34,6 +35,15 @@ COMMANDS = {
 }
 
 OPTIONAL_FEATURES_COMMANDS = {"init", "install"}
+
+
+def _release_short_help(subparser):
+    """Some subcommands reuse "-h" for a real option; keep "--help" only."""
+    for action in subparser._actions:
+        if "-h" in action.option_strings and "--help" in action.option_strings:
+            action.option_strings.remove("-h")
+            subparser._option_string_actions.pop("-h", None)
+            return
 
 
 def build_parser():
@@ -91,10 +101,25 @@ def build_parser():
         "init",
         help="Bootstrap this repo, or scaffold a feature map when <name> is given",
     )
+    # Free up "-h" on this subparser so it can mean "--harness" ("--help" still works).
+    _release_short_help(init_parser)
     init_parser.add_argument(
         "name",
         nargs="?",
         help="Feature slug to scaffold (omit to bootstrap the repo)",
+    )
+    init_parser.add_argument(
+        "-y",
+        "--yes",
+        action="store_true",
+        help="After bootstrap, start authoring maps without confirming",
+    )
+    init_parser.add_argument(
+        "-h",
+        "--harness",
+        metavar="HARNESS",
+        help="Agent harness to launch for map authoring "
+        "(" + "|".join(HARNESSES) + ")",
     )
     init_parser.add_argument("--force", action="store_true", help="Overwrite existing files")
     init_parser.add_argument(
@@ -209,6 +234,8 @@ def dispatch(args):
             shim=args.shim,
             force=args.force,
             as_json=as_json,
+            yes=args.yes,
+            harness=args.harness,
         )
 
     parser = build_parser()

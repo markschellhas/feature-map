@@ -284,6 +284,11 @@ This is idempotent. It:
 5. Writes `bin/feature-map` — a shim that execs `feature-map` on PATH
 
 Useful flags: `--no-agents`, `--no-shim`, `--upgrade-skill`, `--force`.
+Also: `-y/--yes` skips the "start authoring maps?" prompt and
+`-h/--harness <name>` picks the agent harness non-interactively
+(`claude|cursor-agent|opencode|grok|codex|gemini|pi`). On an empty repo
+`init` then offers to launch your harness to scour the code and author the
+first maps; answer `n` or pick `skip` to do it yourself.
 
 Then declare this repo's apps so `check` can resolve paths:
 
