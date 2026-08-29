@@ -30,7 +30,7 @@ def resolve_map_path(features_dir: Path, name: str) -> Path:
             return path
     raise CliError(
         f'Feature "{name}" not found.',
-        suggestion='Run "featuremap list" to see available features.',
+        suggestion='Run "feature-map list" to see available features.',
     )
 
 

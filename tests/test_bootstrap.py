@@ -20,7 +20,7 @@ class BootstrapTests(FeaturemapTestCase):
         self.assertTrue((repo / ".agents" / "skills" / "feature-map" / "SKILL.md").is_file())
         self.assertTrue((repo / "bin" / "feature-map").is_file())
         agents = (repo / "AGENTS.md").read_text(encoding="utf-8")
-        self.assertIn("<!-- featuremap:start -->", agents)
+        self.assertIn("<!-- feature-map:start -->", agents)
         self.assertIn("feature-map list", agents)
         self.assertIn("ALWAYS", agents)
         self.assertIn("scour the existing code", agents)
@@ -44,7 +44,8 @@ class BootstrapTests(FeaturemapTestCase):
         text = agents_path.read_text(encoding="utf-8")
         self.assertNotIn("OLD BLOCK", text)
         self.assertIn("ALWAYS", text)
-        self.assertEqual(text.count("<!-- featuremap:start -->"), 1)
+        self.assertEqual(text.count("<!-- feature-map:start -->"), 1)
+        self.assertNotIn("<!-- featuremap:start -->", text)
 
     def test_init_is_idempotent(self):
         repo = self.tmpdir / "empty"
@@ -57,7 +58,7 @@ class BootstrapTests(FeaturemapTestCase):
         payload = json.loads(second.stdout)
         self.assertTrue(payload["ok"])
         agents = (repo / "AGENTS.md").read_text(encoding="utf-8")
-        self.assertEqual(agents.count("<!-- featuremap:start -->"), 1)
+        self.assertEqual(agents.count("<!-- feature-map:start -->"), 1)
 
     def test_init_upgrade_skill(self):
         repo = self.tmpdir / "empty"
@@ -89,6 +90,16 @@ class BootstrapTests(FeaturemapTestCase):
         self.assertEqual(result.returncode, 0)
         self.assertTrue((repo / ".grok" / "skills" / "feature-map" / "SKILL.md").is_file())
         self.assertFalse((repo / ".agents" / "skills" / "feature-map" / "SKILL.md").exists())
+
+    def test_shim_invokes_feature_map(self):
+        repo = self.tmpdir / "empty"
+        repo.mkdir()
+        (repo / ".git").mkdir()
+        self.run_cli(["init"], cwd=repo)
+        shim = (repo / "bin" / "feature-map").read_text(encoding="utf-8")
+        self.assertIn("pip install feature-map", shim)
+        self.assertIn("command -v feature-map", shim)
+        self.assertNotIn("pip install featuremap", shim)
 
     def test_install_status_json(self):
         repo = self.tmpdir / "empty"

@@ -13,6 +13,8 @@ class CliTests(FeaturemapTestCase):
     def test_help_lists_commands(self):
         result = self.run_cli(["--help"])
         self.assertEqual(result.returncode, 0)
+        self.assertIn("feature-map", result.stdout)
+        self.assertNotIn("usage: featuremap ", result.stdout)
         for name in ("list", "show", "search", "find", "graph", "validate", "init"):
             self.assertIn(name, result.stdout)
 
@@ -46,7 +48,7 @@ class CliTests(FeaturemapTestCase):
         payload = json.loads(result.stdout)
         self.assertFalse(payload["ok"])
         self.assertIn("error", payload)
-        self.assertIn("featuremap list", payload.get("suggestion", ""))
+        self.assertIn("feature-map list", payload.get("suggestion", ""))
 
     def test_search_and_find(self):
         repo = self.copy_repo()
@@ -102,7 +104,12 @@ class CliTests(FeaturemapTestCase):
         self.assertEqual(result.returncode, 0)
         created = repo / ".features" / "onboarding.yaml"
         self.assertTrue(created.is_file())
-        self.assertIn("feature_name: onboarding", created.read_text(encoding="utf-8"))
+        text = created.read_text(encoding="utf-8")
+        self.assertIn("feature_name: onboarding", text)
+        self.assertIn("One sentence:", text)
+        self.assertNotIn("why it matters", text)
+        self.assertNotIn("Authoring tips:", text)
+        self.assertNotRegex(text, r"^notes:", msg="scaffold should omit notes unless there is a caveat")
 
     def test_discovery_from_subdirectory(self):
         repo = self.copy_repo()

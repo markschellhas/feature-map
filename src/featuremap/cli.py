@@ -38,7 +38,7 @@ OPTIONAL_FEATURES_COMMANDS = {"init", "install"}
 
 def build_parser():
     parser = argparse.ArgumentParser(
-        prog="featuremap",
+        prog="feature-map",
         description="Feature Map CLI — cross-app architecture research tool",
     )
     parser.add_argument("--json", action="store_true", help="Machine-readable JSON output")

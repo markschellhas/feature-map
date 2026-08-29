@@ -1,5 +1,5 @@
 feature_name: {{feature_name}}
-purpose: "Describe what {{FEATURE_TITLE}} does and why it matters."
+purpose: "One sentence: what {{FEATURE_TITLE}} does."
 
 entry_points:
   - path/to/primary/entry_point
@@ -9,11 +9,9 @@ apps:
   - app_name
 
 user_flow:
-  primary: "Describe the main user journey."
+  primary: "Actor → action → result."
 
 related_features:
-  - related_feature_slug (brief note)
+  - related_feature_slug (coupling)
 
-notes: >
-  Authoring tips: keep entry_points as real file paths where possible.
-  Run `featuremap validate` and `featuremap check` after edits.
+# notes: caveats/unknowns only — omit this key if none

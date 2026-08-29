@@ -19,6 +19,21 @@ class ValidateTests(FeaturemapTestCase):
         self.assertEqual(errors, [])
         self.assertTrue(any("does_not_exist" in item for item in warnings))
 
+    def test_missing_notes_is_not_a_warning(self):
+        path = self.tmpdir / "signup.yaml"
+        path.write_text(
+            "feature_name: signup\n"
+            "purpose: Create an account.\n"
+            "entry_points:\n  - src/app.py\n"
+            "apps:\n  - api\n"
+            "user_flow:\n  primary: Submit → account.\n"
+            "related_features:\n  - auth (session after signup)\n",
+            encoding="utf-8",
+        )
+        errors, warnings = validate_map_file(path, {"signup", "auth"})
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, [])
+
 
 if __name__ == "__main__":
     unittest.main()

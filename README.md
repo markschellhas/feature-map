@@ -1,7 +1,7 @@
-# featuremap
+# Feature Map
 
 Cross-app architecture research CLI. Agents and engineers keep authoritative
-feature maps in `.features/*.yaml`; `featuremap` lists, searches, validates,
+feature maps in `.features/*.yaml`; `feature-map` lists, searches, validates,
 and graphs them.
 
 A wiki stores architecture as prose — agents re-read a whole page to find three
@@ -13,35 +13,36 @@ prove paths still exist.
 
 ```bash
 pip install -e .
-# pip install featuremap
-# brew install featuremap
+# pip install feature-map
+# brew install feature-map
 ```
 
-Requires Python 3.8+ and PyYAML.
+Requires Python 3.8+ and PyYAML. Install as `feature-map` — `pip install featuremap`
+is a different project.
 
 ## Usage
 
 ```bash
 cd my-repo
-featuremap init
-featuremap init auth          # scaffold .features/auth.yaml
-featuremap list
-featuremap search billing
-featuremap validate
+feature-map init
+feature-map init auth          # scaffold .features/auth.yaml
+feature-map list
+feature-map search billing
+feature-map validate
 ```
 
-`featuremap init` is idempotent. It:
+`feature-map init` is idempotent. It:
 
 1. Creates `.features/`
 2. Copies the agent skill to `.agents/skills/feature-map/` (or `.grok/skills/` if that tree already exists)
 3. Writes `.feature-map.yaml` defaults when missing
 4. Appends an `AGENTS.md` block (skip with `--no-agents`)
-5. Writes `bin/feature-map` as a shim to `featuremap` (skip with `--no-shim`)
+5. Writes `bin/feature-map` as a repo-local shim (skip with `--no-shim`)
 
 Refresh the skill after upgrading the package:
 
 ```bash
-featuremap init --upgrade-skill
+feature-map init --upgrade-skill
 ```
 
 ## Commands

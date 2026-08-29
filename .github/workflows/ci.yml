@@ -22,5 +22,5 @@ jobs:
         run: python -m pytest -q
       - name: CLI smoke
         run: |
-          featuremap --version
-          featuremap --help
+          feature-map --version
+          feature-map --help

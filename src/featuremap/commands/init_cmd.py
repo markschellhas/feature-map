@@ -21,7 +21,7 @@ def run_init_map(features_dir: Path, name: str, force: bool = False, as_json: bo
 
     tpl = template_path()
     if not tpl.is_file():
-        raise CliError("Template not found in the featuremap package.")
+        raise CliError("Template not found in the feature-map package.")
 
     content = tpl.read_text(encoding="utf-8")
     content = content.replace("{{feature_name}}", slug)
@@ -56,7 +56,7 @@ def run_bootstrap(
     if as_json:
         return payload
 
-    print("Initialized featuremap in this repository:")
+    print("Initialized Feature Map in this repository:")
     print(f"  .features/: {payload['features_dir']}")
     print(f"  skill: {payload['skill']}")
     print(f"  config: {payload['config']}")

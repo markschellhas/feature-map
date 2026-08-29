@@ -21,7 +21,7 @@ def run_install(repo_root: Path, as_json: bool = False):
     features_dir = repo_root / ".features"
     config_file = repo_root / ".feature-map.yaml"
     skill_path = _detect_deployed_skill(repo_root)
-    on_path = shutil.which("featuremap")
+    on_path = shutil.which("feature-map")
 
     shim_ok = shim.is_file() and os.access(shim, os.X_OK)
     skill_ok = (skill_path / "SKILL.md").is_file()
@@ -31,7 +31,7 @@ def run_install(repo_root: Path, as_json: bool = False):
 
     payload = {
         "ok": bundled_ok and (shim_ok or bool(on_path)),
-        "cli_on_path": {"command": "featuremap", "path": on_path, "exists": bool(on_path)},
+        "cli_on_path": {"command": "feature-map", "path": on_path, "exists": bool(on_path)},
         "shim": {"path": str(shim), "exists": shim.is_file(), "executable": shim_ok},
         "skill": {"path": str(skill_path), "exists": skill_ok},
         "bundled_skill": {"path": str(bundled_skill_dir()), "exists": bundled_ok},
@@ -42,13 +42,13 @@ def run_install(repo_root: Path, as_json: bool = False):
     if as_json:
         return payload
 
-    print("Featuremap install status:")
-    print(f"  featuremap on PATH: {'ok' if on_path else 'missing'} ({on_path or 'not found'})")
+    print("Feature Map install status:")
+    print(f"  feature-map on PATH: {'ok' if on_path else 'missing'} ({on_path or 'not found'})")
     print(f"  shim: {'ok' if shim_ok else 'missing or not executable'} ({shim})")
     print(f"  skill: {'ok' if skill_ok else 'missing'} ({skill_path})")
     print(f"  bundled skill: {'ok' if bundled_ok else 'missing'} ({bundled_skill_dir()})")
     print(f"  .features/: {'ok' if features_ok else 'missing'} ({features_dir})")
     print(f"  .feature-map.yaml: {'ok' if config_ok else 'missing'} ({config_file})")
     if not features_ok:
-        print('Suggestion: run "featuremap init" to bootstrap this repository.')
+        print('Suggestion: run "feature-map init" to bootstrap this repository.')
     return payload

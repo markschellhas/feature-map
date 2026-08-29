@@ -1,6 +1,6 @@
 # Feature Map — development, packaging, and adoption
 
-This is the operator's guide for `featuremap`: how it was built, how to
+This is the operator's guide for `feature-map`: how it was built, how to
 publish it so anyone can install it, and how a developer (or an agent)
 adopts it in another repository — including existing codebases that do
 not yet have maps.
@@ -30,9 +30,9 @@ Feature Map stores the same knowledge as **fields**, not essays:
 **How an agent finds a feature (cheap path):**
 
 ```bash
-featuremap list                          # names only
-featuremap search billing                # slugs + short snippets
-featuremap show billing --section entry_points
+feature-map list                          # names only
+feature-map search billing                # slugs + short snippets
+feature-map show billing --section entry_points
 ```
 
 `list` is a few dozen tokens. `search` returns hits, not chapters.
@@ -57,7 +57,7 @@ That is why it is more efficient:
   without maintaining a second documentation site.
 - Reviews stay honest: if `entry_points` does not list the file you
   changed, the map is wrong and you fix it in the same PR.
-- Onboarding is `featuremap list` then `show`, not "read the wiki and
+- Onboarding is `feature-map list` then `show`, not "read the wiki and"
   hope the architecture section is current."
 - You still write PRDs and plans for *what to build*. The map only
   answers *where it lives and what it touches*. That split keeps both
@@ -91,7 +91,7 @@ The work is specified in playbook-app `docs/PRDs/prd-feature-map-cli.md`.
 | Phase | Where | Goal |
 |-------|--------|------|
 | **1** | Inside playbook-app | Dogfood a complete CLI and agent skill against real maps |
-| **2** | This `featuremap/` package | Extract that CLI so other repos can install it |
+| **2** | This `feature-map` package | Extract that CLI so other repos can install it |
 
 Phase 1 shipped first under `.agents/skills/feature-map/` with a repo-root
 `./bin/feature-map` shim. Commands, schema, discovery (walk up from `cwd` to
@@ -100,7 +100,7 @@ monorepo's maps.
 
 Phase 2 is this directory. The Python package was moved, not rewritten:
 
-- Module name `feature_map` → `featuremap` (brew-friendly binary name)
+- Import package `featuremap`; public CLI / pip / Homebrew name `feature-map`
 - Assets (schema, template, agent skill) live in `share/featuremap/` and
   ship inside the wheel
 - Tests use `tests/fixtures/` only — no dependency on Taptics maps
@@ -113,10 +113,10 @@ Phase 2 is this directory. The Python package was moved, not rewritten:
    `.feature-map.yaml`, and the filesystem.
 2. **Package-relative assets.** Schema and templates resolve via
    `featuremap.paths.assets_root()`, not hardcoded monorepo paths.
-3. **Thin entrypoint.** `python -m featuremap` and the `featuremap` console
+3. **Thin entrypoint.** `python -m featuremap` and the `feature-map` console
    script both call `featuremap.cli:main`.
-4. **Two meanings of `init`.** `featuremap init` bootstraps a consumer repo.
-   `featuremap init <name>` scaffolds one map. Both are required for
+4. **Two meanings of `init`.** `feature-map init` bootstraps a consumer repo.
+   `feature-map init <name>` scaffolds one map. Both are required for
    distribution: the first installs the workflow, the second authors data.
 
 ### What a feature map is
@@ -149,46 +149,46 @@ Map *data* never ships in the package. Each consumer repo keeps its own
 ### 2.1 Split out of playbook-app (first publish)
 
 This tree started as `playbook-app/featuremap/`. Cloud Agent tokens cannot
-create GitHub repositories. Create `markschellhas/featuremap` (public, MIT)
+create GitHub repositories. Create `markschellhas/feature-map` (public, MIT)
 in the GitHub UI, then:
 
 ```bash
 cd /path/to/playbook-app
 git subtree split --prefix=featuremap -b featuremap-split
-git push git@github.com:markschellhas/featuremap.git featuremap-split:main
+git push git@github.com:markschellhas/feature-map.git featuremap-split:main
 ```
 
 After that, develop and tag in the standalone repo. See `EXTRACT.md`.
 
 ### 2.2 pip (primary for Linux / CI)
 
-From the `featuremap` repo root:
+From the `feature-map` repo root:
 
 ```bash
 python3 -m pip install build twine
 python3 -m build                # sdist + wheel in dist/
 python3 -m twine check dist/*
-python3 -m twine upload dist/   # once PyPI project "featuremap" exists
+python3 -m twine upload dist/   # once PyPI project "feature-map" exists
 ```
 
 `pyproject.toml` already declares:
 
-- package `featuremap` under `src/featuremap`
-- console script `featuremap = featuremap.cli:main`
+- distribution name `feature-map`; import package `featuremap` under `src/featuremap`
+- console script `feature-map = featuremap.cli:main`
 - runtime dep `pyyaml>=6.0`
 - wheel force-include of `share/featuremap` → `featuremap/share`
 
 Until PyPI is live, anyone can install from git:
 
 ```bash
-pip install "git+https://github.com/markschellhas/featuremap.git"
+pip install "git+https://github.com/markschellhas/feature-map.git"
 # or a local checkout:
-pip install -e /path/to/featuremap
+pip install -e /path/to/feature-map
 ```
 
 ### 2.3 Homebrew (primary for macOS)
 
-`Formula/featuremap.rb` is a draft. After the GitHub repo exists:
+`Formula/feature-map.rb` is a draft. After the GitHub repo exists:
 
 1. Tag a release: `git tag v1.0.0 && git push origin v1.0.0`
 2. Fill `url` + `sha256` on the formula (or keep `head` for `--HEAD`)
@@ -196,17 +196,17 @@ pip install -e /path/to/featuremap
 
 ```bash
 brew tap markschellhas/taptics   # example
-brew install featuremap
+brew install feature-map
 # or during bring-up:
-brew install --HEAD markschellhas/taptics/featuremap
+brew install --HEAD markschellhas/taptics/feature-map
 ```
 
-The formula should leave `featuremap` on PATH and, when possible, install
+The formula should leave `feature-map` on PATH and, when possible, install
 `share/featuremap/{schema,templates,skill}` for `init`.
 
 ### 2.4 Versioning
 
-- Semver on the CLI (`featuremap --version`, today `1.0.0`)
+- Semver on the CLI (`feature-map --version`, today `1.0.0`)
 - Skill frontmatter `version:` should match the CLI version
 - Record changes in `CHANGELOG.md`
 - Consumer repos may pin `min_cli_version` in `.feature-map.yaml`
@@ -215,7 +215,7 @@ The formula should leave `featuremap` on PATH and, when possible, install
 
 | Ships in the package | Stays in each consumer repo |
 |----------------------|-----------------------------|
-| `featuremap` binary | `.features/*.yaml` (the maps) |
+| `feature-map` binary | `.features/*.yaml` (the maps) |
 | Schema + map template | `.feature-map.yaml` |
 | Agent skill (`SKILL.md` + references) | `AGENTS.md` snippet (written by `init`) |
 | Homebrew formula / CI for the tool | `bin/feature-map` shim (written by `init`) |
@@ -223,11 +223,11 @@ The formula should leave `featuremap` on PATH and, when possible, install
 ### 2.6 Verify a package before you publish
 
 ```bash
-cd featuremap
+cd feature-map
 pip install -e ".[dev]"
 python -m pytest -q
-featuremap --version
-featuremap --help
+feature-map --version
+feature-map --help
 ```
 
 CI (`.github/workflows/ci.yml`) runs the same tests on 3.8 and 3.12.
@@ -238,7 +238,7 @@ CI (`.github/workflows/ci.yml`) runs the same tests on 3.8 and 3.12.
 
 This section is for a developer adopting Feature Map in **their** repo,
 greenfield or existing. It is also the contract agents must follow once
-`featuremap init` has run.
+`feature-map init` has run.
 
 ### 3.1 Install the CLI
 
@@ -246,18 +246,18 @@ Pick one:
 
 ```bash
 # once published
-brew install featuremap
-pip install featuremap
+brew install feature-map
+pip install feature-map
 
 # until then
-pip install "git+https://github.com/markschellhas/featuremap.git"
+pip install "git+https://github.com/markschellhas/feature-map.git"
 pip install -e /path/to/playbook-app/featuremap
 ```
 
 Confirm:
 
 ```bash
-featuremap --version
+feature-map --version
 ```
 
 ### 3.2 Bootstrap the repo
@@ -266,7 +266,7 @@ From the consumer repo root (must be a git checkout, or `init` still works
 if you are already at the intended root):
 
 ```bash
-featuremap init
+feature-map init
 ```
 
 This is idempotent. It:
@@ -277,7 +277,7 @@ This is idempotent. It:
 3. Writes `.feature-map.yaml` if missing
 4. Appends (or refreshes) an `AGENTS.md` block that **requires** agents
    to use Feature Map before feature work
-5. Writes `bin/feature-map` — a shim that execs `featuremap` on PATH
+5. Writes `bin/feature-map` — a shim that execs `feature-map` on PATH
 
 Useful flags: `--no-agents`, `--no-shim`, `--upgrade-skill`, `--force`.
 
@@ -298,7 +298,7 @@ min_cli_version: "1.0.0"
 
 ### 3.3 Instruction for agents — always use the feature map
 
-`featuremap init` writes this mandate into `AGENTS.md`. Keep it. Do not
+`feature-map init` writes this mandate into `AGENTS.md`. Keep it. Do not
 weaken it. Downstream skills (plans, PRDs, debugging) should say:
 
 > **REQUIRED SUB-SKILL:** Use `feature-map` before proceeding.
@@ -306,14 +306,14 @@ weaken it. Downstream skills (plans, PRDs, debugging) should say:
 **Agents must:**
 
 1. **Before any feature work, debug, PRD, or plan** — run
-   `featuremap list` (or `./bin/feature-map list`).
-2. If the feature name is unclear — `featuremap search <keyword>` and
-   `featuremap find <path-fragment>`.
-3. Read the map — `featuremap <slug>` or
-   `featuremap show <slug> --section entry_points` to save tokens.
-4. For cross-cutting work — `featuremap graph <slug>`.
+   `feature-map list` (or `./bin/feature-map list`).
+2. If the feature name is unclear — `feature-map search <keyword>` and
+   `feature-map find <path-fragment>`.
+3. Read the map — `feature-map <slug>` or
+   `feature-map show <slug> --section entry_points` to save tokens.
+4. For cross-cutting work — `feature-map graph <slug>`.
 5. After shipping architecture changes — update the relevant
-   `.features/*.yaml`, then `featuremap validate` and `featuremap check`.
+   `.features/*.yaml`, then `feature-map validate` and `feature-map check`.
 
 **Agents must not** implement, plan, or "just grep the repo" when a map
 exists for that area. The map is authoritative; the tree is how you
@@ -326,15 +326,15 @@ PRD or plan without writing the map.
 Day-to-day commands:
 
 ```bash
-featuremap list
-featuremap search billing
-featuremap find src/invoices
-featuremap billing
-featuremap show billing --section entry_points
-featuremap graph billing --format mermaid
-featuremap validate
-featuremap check
-featuremap impact src/invoices/create.py
+feature-map list
+feature-map search billing
+feature-map find src/invoices
+feature-map billing
+feature-map show billing --section entry_points
+feature-map graph billing --format mermaid
+feature-map validate
+feature-map check
+feature-map impact src/invoices/create.py
 ```
 
 `./bin/feature-map` is the same CLI if the global binary is not on PATH
@@ -379,8 +379,8 @@ Scour, in order, whatever exists:
 Use the CLI as you go:
 
 ```bash
-featuremap find <controller_or_package>
-featuremap search <domain word>
+feature-map find <controller_or_package>
+feature-map search <domain word>
 ```
 
 On a first pass those will miss (no maps yet). That is the signal to
@@ -406,7 +406,7 @@ Split when journeys, owners, or deployables diverge. Cross-app flows
 #### Step D — author each map
 
 ```bash
-featuremap init signup          # scaffold .features/signup.yaml
+feature-map init signup          # scaffold .features/signup.yaml
 ```
 
 Then replace placeholders by reading the real code. Required:
@@ -431,7 +431,7 @@ notes: >
 
 Rules while scouring:
 
-- Prefer **paths that exist on disk**. `featuremap check` will flag
+- Prefer **paths that exist on disk**. `feature-map check` will flag
   missing ones; invented paths train agents to look in the wrong place.
 - Routes (`GET /signup`) may appear in `entry_points` as extra context,
   but put the implementing file next to them.
@@ -443,9 +443,9 @@ Work in batches: scaffold 5–10 obvious features, `validate`, then fill
 gaps `check` and `stats` report.
 
 ```bash
-featuremap validate
-featuremap check --json
-featuremap stats --json
+feature-map validate
+feature-map check --json
+feature-map stats --json
 ```
 
 `validate` without `--strict` treats missing recommended sections as
@@ -457,7 +457,7 @@ Stop when:
 
 - Every app in `.feature-map.yaml` appears on at least one map
 - The main user journeys (signup, core loop, billing/admin if any) have maps
-- `featuremap search <product noun>` hits something for the nouns in the README
+- `feature-map search <product noun>` hits something for the nouns in the README
 - `check` only reports paths you *intend* to add, not typos
 
 You do not need 100% file coverage. You need **named doors** into the
@@ -467,13 +467,13 @@ system so the next agent does not start from zero.
 
 After that first scour:
 
-- New feature → `featuremap init <slug>` in the same PR as the code
+- New feature → `feature-map init <slug>` in the same PR as the code
 - Moved/renamed files → update `entry_points`, run `check`
 - Cross-feature work → update `related_features` and re-read `graph`
 
 ### 3.5 Greenfield repos
 
-If there is almost no code yet, still `featuremap init`, then add a map
+If there is almost no code yet, still `feature-map init`, then add a map
 when the first vertical slice lands. Empty `.features/` plus the
 `AGENTS.md` mandate is enough: the next agent is required to author the
 map with the feature, not after the fact.
@@ -482,10 +482,10 @@ map with the feature, not after the fact.
 
 ```yaml
 # example GitHub Actions step
-- run: pip install featuremap
-- run: featuremap validate
+- run: pip install feature-map
+- run: feature-map validate
 # optional, once maps are trusted:
-# - run: featuremap validate --strict
+# - run: feature-map validate --strict
 ```
 
 Trigger on changes to `.features/**` and, if you want a backstop, on
@@ -494,12 +494,12 @@ every PR.
 ### 3.7 Upgrade
 
 ```bash
-pip install -U featuremap   # or brew upgrade
-featuremap init --upgrade-skill
+pip install -U feature-map   # or brew upgrade
+feature-map init --upgrade-skill
 ```
 
 `--upgrade-skill` overwrites the deployed `SKILL.md` and references from
-the installed package version. Re-run `featuremap init` to refresh the
+the installed package version. Re-run `feature-map init` to refresh the
 `AGENTS.md` marked block.
 
 ---

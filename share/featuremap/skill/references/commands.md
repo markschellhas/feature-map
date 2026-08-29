@@ -1,6 +1,6 @@
 # Feature Map CLI Reference
 
-Invocation: `featuremap` (on PATH) or `./bin/feature-map` (repo-local shim).
+Invocation: `feature-map` (on PATH) or `./bin/feature-map` (repo-local shim).
 
 Global flags: `--json`, `--version`
 
@@ -26,18 +26,18 @@ Global flags: `--json`, `--version`
 ## Examples
 
 ```bash
-featuremap list
-featuremap auth
-featuremap show auth --section entry_points
-featuremap search billing
-featuremap find src/app.py
-featuremap graph auth --format mermaid
-featuremap validate
-featuremap check --json
-featuremap impact src/app.py
-featuremap stats --json
-featuremap init
-featuremap init billing --force
+feature-map list
+feature-map auth
+feature-map show auth --section entry_points
+feature-map search billing
+feature-map find src/app.py
+feature-map graph auth --format mermaid
+feature-map validate
+feature-map check --json
+feature-map impact src/app.py
+feature-map stats --json
+feature-map init
+feature-map init billing --force
 ```
 
 ## Exit codes
