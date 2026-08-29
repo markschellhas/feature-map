@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Public CLI, pip, and Homebrew name is `feature-map` (`pip install feature-map`,
-  `brew install feature-map`). The Python import remains `featuremap`.
+  `brew install feature-map`). The Python import is `feature_map` so it does not
+  collide with the existing PyPI package `featuremap`.
 - Repo-local `bin/feature-map` shim execs `feature-map` without recursing if
   `bin/` is on PATH.
 - `init` writes `<!-- feature-map:start -->` in `AGENTS.md` and migrates the

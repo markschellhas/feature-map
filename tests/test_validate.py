@@ -1,8 +1,8 @@
 import unittest
 from pathlib import Path
 
-from featuremap.loader import all_slugs
-from featuremap.validate import validate_map_file
+from feature_map.loader import all_slugs
+from feature_map.validate import validate_map_file
 from helpers import FEATURES, FeaturemapTestCase
 
 

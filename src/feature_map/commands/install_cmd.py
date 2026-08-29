@@ -2,7 +2,7 @@ import os
 import shutil
 from pathlib import Path
 
-from featuremap.paths import skill_dir as bundled_skill_dir
+from feature_map.paths import skill_dir as bundled_skill_dir
 
 
 def _detect_deployed_skill(repo_root: Path) -> Path:

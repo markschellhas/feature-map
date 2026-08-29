@@ -100,8 +100,8 @@ monorepo's maps.
 
 Phase 2 is this directory. The Python package was moved, not rewritten:
 
-- Import package `featuremap`; public CLI / pip / Homebrew name `feature-map`
-- Assets (schema, template, agent skill) live in `share/featuremap/` and
+- Import package `feature_map`; public CLI / pip / Homebrew name `feature-map`
+- Assets (schema, template, agent skill) live in `share/feature_map/` and
   ship inside the wheel
 - Tests use `tests/fixtures/` only — no dependency on Taptics maps
 - Defaults are generic (`apps: []`); Rails-style path fallbacks apply only
@@ -112,9 +112,9 @@ Phase 2 is this directory. The Python package was moved, not rewritten:
 1. **No imports from the host repo.** The CLI only reads `.features/`,
    `.feature-map.yaml`, and the filesystem.
 2. **Package-relative assets.** Schema and templates resolve via
-   `featuremap.paths.assets_root()`, not hardcoded monorepo paths.
-3. **Thin entrypoint.** `python -m featuremap` and the `feature-map` console
-   script both call `featuremap.cli:main`.
+   `feature_map.paths.assets_root()`, not hardcoded monorepo paths.
+3. **Thin entrypoint.** `python -m feature_map` and the `feature-map` console
+   script both call `feature_map.cli:main`.
 4. **Two meanings of `init`.** `feature-map init` bootstraps a consumer repo.
    `feature-map init <name>` scaffolds one map. Both are required for
    distribution: the first installs the workflow, the second authors data.
@@ -169,14 +169,15 @@ python3 -m pip install build twine
 python3 -m build                # sdist + wheel in dist/
 python3 -m twine check dist/*
 python3 -m twine upload dist/   # once PyPI project "feature-map" exists
+# Preferred: Trusted Publishing. Full steps: PUBLISH.md
 ```
 
 `pyproject.toml` already declares:
 
-- distribution name `feature-map`; import package `featuremap` under `src/featuremap`
-- console script `feature-map = featuremap.cli:main`
+- distribution name `feature-map`; import package `feature_map` under `src/feature_map`
+- console script `feature-map = feature_map.cli:main`
 - runtime dep `pyyaml>=6.0`
-- wheel force-include of `share/featuremap` → `featuremap/share`
+- wheel force-include of `share/feature_map` → `feature_map/share`
 
 Until PyPI is live, anyone can install from git:
 
@@ -188,7 +189,8 @@ pip install -e /path/to/feature-map
 
 ### 2.3 Homebrew (primary for macOS)
 
-`Formula/feature-map.rb` is a draft. After the GitHub repo exists:
+`Formula/feature-map.rb` is a draft. After the GitHub repo exists
+(full steps: `PUBLISH.md`):
 
 1. Tag a release: `git tag v1.0.0 && git push origin v1.0.0`
 2. Fill `url` + `sha256` on the formula (or keep `head` for `--HEAD`)
@@ -202,7 +204,7 @@ brew install --HEAD markschellhas/taptics/feature-map
 ```
 
 The formula should leave `feature-map` on PATH and, when possible, install
-`share/featuremap/{schema,templates,skill}` for `init`.
+`share/feature_map/{schema,templates,skill}` for `init`.
 
 ### 2.4 Versioning
 
@@ -509,9 +511,10 @@ the installed package version. Re-run `feature-map init` to refresh the
 | File | Role |
 |------|------|
 | `README.md` | Short install + command list |
+| `PUBLISH.md` | Submit to PyPI and Homebrew |
 | `EXTRACT.md` | Split this directory into its own GitHub repo |
 | `CHANGELOG.md` | Released CLI versions |
-| `share/featuremap/skill/SKILL.md` | Agent skill copied by `init` |
-| `share/featuremap/skill/references/existing-repos.md` | Scour-the-code playbook for agents |
-| `share/featuremap/skill/references/authoring.md` | Map shape and conventions |
-| `share/featuremap/skill/references/commands.md` | Full CLI reference |
+| `share/feature_map/skill/SKILL.md` | Agent skill copied by `init` |
+| `share/feature_map/skill/references/existing-repos.md` | Scour-the-code playbook for agents |
+| `share/feature_map/skill/references/authoring.md` | Map shape and conventions |
+| `share/feature_map/skill/references/commands.md` | Full CLI reference |

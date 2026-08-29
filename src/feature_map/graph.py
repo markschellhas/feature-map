@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Set
 
 import yaml
 
-from featuremap.loader import extract_related_slug, list_map_files
+from feature_map.loader import extract_related_slug, list_map_files
 
 
 def build_graph(features_dir: Path) -> Dict[str, List[str]]:

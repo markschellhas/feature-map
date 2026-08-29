@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from featuremap.text_index import search_maps
+from feature_map.text_index import search_maps
 
 
 def run_search(features_dir: Path, query: str, as_json: bool = False):

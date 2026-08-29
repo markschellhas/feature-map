@@ -1,9 +1,11 @@
-# Draft Homebrew formula. Point url/sha256 at a GitHub release tag once
-# a tap is published. Until then, install from this tree:
+# Draft Homebrew formula. Fill url/sha256 from the PyPI sdist after the
+# first upload. Full steps: PUBLISH.md.
+#
+# Until then, install from this tree:
 #
 #   pip install -e .
 #
-# or from git after the standalone repo is published:
+# or from a tap:
 #
 #   brew install --HEAD markschellhas/tap/feature-map
 
@@ -20,7 +22,7 @@ class FeatureMap < Formula
     system Formula["python@3.12"].opt_libexec/"bin/python", "-m", "venv", virtualenv
     system virtualenv/"bin/pip", "install", "."
     bin.install_symlink virtualenv/"bin/feature-map"
-    (share/"feature-map").install Dir["share/featuremap/*"] if File.directory?("share/featuremap")
+    (share/"feature-map").install Dir["share/feature_map/*"] if File.directory?("share/feature_map")
   end
 
   test do

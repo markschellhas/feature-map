@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from featuremap.bootstrap import bootstrap_repo, ensure_features_dir
-from featuremap.errors import CliError
-from featuremap.loader import normalize_slug
-from featuremap.paths import template_path
+from feature_map.bootstrap import bootstrap_repo, ensure_features_dir
+from feature_map.errors import CliError
+from feature_map.loader import normalize_slug
+from feature_map.paths import template_path
 
 
 def run_init_map(features_dir: Path, name: str, force: bool = False, as_json: bool = False):

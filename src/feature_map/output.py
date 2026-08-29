@@ -3,7 +3,7 @@ import sys
 
 import yaml
 
-from featuremap.errors import CliError, FeaturesNotFoundError
+from feature_map.errors import CliError, FeaturesNotFoundError
 
 
 def emit(data, as_json=False, stream=None):

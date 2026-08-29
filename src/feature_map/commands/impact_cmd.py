@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from featuremap.graph import build_graph
-from featuremap.loader import list_map_files
+from feature_map.graph import build_graph
+from feature_map.loader import list_map_files
 
 
 def run_impact(

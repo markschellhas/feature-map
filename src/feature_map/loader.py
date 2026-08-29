@@ -6,7 +6,7 @@ from typing import Optional
 
 import yaml
 
-from featuremap.errors import CliError
+from feature_map.errors import CliError
 
 
 def normalize_slug(name: str) -> str:

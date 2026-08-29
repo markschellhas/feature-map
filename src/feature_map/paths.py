@@ -8,8 +8,8 @@ def package_dir() -> Path:
 
 
 def source_share_dir() -> Path:
-    """Repo-root share/featuremap when running from a source checkout."""
-    return package_dir().parent.parent / "share" / "featuremap"
+    """Repo-root share/feature_map when running from a source checkout."""
+    return package_dir().parent.parent / "share" / "feature_map"
 
 
 def assets_root() -> Path:

@@ -5,8 +5,8 @@ from typing import List, Optional, Tuple
 
 import yaml
 
-from featuremap.loader import extract_related_slug, normalize_slug
-from featuremap.paths import schema_path
+from feature_map.loader import extract_related_slug, normalize_slug
+from feature_map.paths import schema_path
 
 REQUIRED_KEYS = ["feature_name", "purpose", "entry_points"]
 RECOMMENDED_KEYS = ["apps", "user_flow", "related_features"]

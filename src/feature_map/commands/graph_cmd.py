@@ -1,4 +1,4 @@
-from featuremap.graph import format_dot, format_mermaid, graph_data
+from feature_map.graph import format_dot, format_mermaid, graph_data
 
 
 def run_graph(features_dir, name=None, fmt="mermaid", as_json=False):
@@ -13,6 +13,6 @@ def run_graph(features_dir, name=None, fmt="mermaid", as_json=False):
     if fmt == "mermaid":
         return format_mermaid(data)
 
-    from featuremap.errors import CliError
+    from feature_map.errors import CliError
 
     raise CliError(f'Unknown graph format "{fmt}".', suggestion="Use mermaid, json, or dot.")

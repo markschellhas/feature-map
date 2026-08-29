@@ -1,7 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 
-from featuremap.loader import list_map_files
+from feature_map.loader import list_map_files
 
 
 def run_list(features_dir: Path, as_json: bool = False):

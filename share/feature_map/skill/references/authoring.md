@@ -34,4 +34,4 @@ Index, not essay. Completeness is doors, apps, and couplings. Delete a sentence 
 
 ## Schema
 
-JSON Schema ships with the package at `share/featuremap/schema/feature-map.schema.json`.
+JSON Schema ships with the package at `share/feature_map/schema/feature-map.schema.json`.

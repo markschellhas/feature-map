@@ -3,7 +3,7 @@ from typing import Dict, List
 
 import yaml
 
-from featuremap.loader import list_map_files
+from feature_map.loader import list_map_files
 
 
 def _flatten(value, prefix="") -> List[str]:

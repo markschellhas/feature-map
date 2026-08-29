@@ -2,7 +2,7 @@ from pathlib import Path
 
 import yaml
 
-from featuremap.loader import load_map, load_map_text, resolve_map_path
+from feature_map.loader import load_map, load_map_text, resolve_map_path
 
 
 def run_show(features_dir: Path, name: str, section=None, as_json: bool = False):
@@ -11,7 +11,7 @@ def run_show(features_dir: Path, name: str, section=None, as_json: bool = False)
         data = load_map(path)
         if section:
             if section not in data:
-                from featuremap.errors import CliError
+                from feature_map.errors import CliError
 
                 raise CliError(
                     f'Section "{section}" not found in {path.stem}.',
@@ -23,7 +23,7 @@ def run_show(features_dir: Path, name: str, section=None, as_json: bool = False)
     if section:
         data = load_map(path)
         if section not in data:
-            from featuremap.errors import CliError
+            from feature_map.errors import CliError
 
             raise CliError(
                 f'Section "{section}" not found in {path.stem}.',

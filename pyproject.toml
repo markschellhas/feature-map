@@ -36,22 +36,22 @@ dev = [
 ]
 
 [project.scripts]
-feature-map = "featuremap.cli:main"
+feature-map = "feature_map.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/markschellhas/feature-map"
 Repository = "https://github.com/markschellhas/feature-map"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/featuremap"]
+packages = ["src/feature_map"]
 
 [tool.hatch.build.targets.wheel.force-include]
-"share/featuremap" = "featuremap/share"
+"share/feature_map" = "feature_map/share"
 
 [tool.hatch.build.targets.sdist]
 include = [
-  "src/featuremap",
-  "share/featuremap",
+  "src/feature_map",
+  "share/feature_map",
   "tests",
   "Formula",
   "README.md",

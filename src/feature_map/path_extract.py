@@ -4,8 +4,8 @@ from typing import Iterable, List, Optional
 
 import yaml
 
-from featuremap.path_normalize import normalize_path_candidate
-from featuremap.path_resolve import resolve_candidate_paths
+from feature_map.path_normalize import normalize_path_candidate
+from feature_map.path_resolve import resolve_candidate_paths
 
 __all__ = [
     "normalize_path_candidate",

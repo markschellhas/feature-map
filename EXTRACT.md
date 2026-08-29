@@ -1,6 +1,7 @@
 # Extract this package to its own GitHub repository
 
-Packaging, PyPI, and Homebrew steps after the split: [GUIDE.md §2](GUIDE.md#2-how-to-package-it-so-anybody-can-use-it).
+Packaging overview: [GUIDE.md §2](GUIDE.md#2-how-to-package-it-so-anybody-can-use-it).
+Submit to PyPI and Homebrew: [PUBLISH.md](PUBLISH.md).
 
 
 `feature-map` is a complete, independently versioned Python package. It has no
@@ -31,8 +32,8 @@ pip install -e ".[dev]"
 python -m pytest -q
 ```
 
-Homebrew: publish a tag (`v1.0.0`), fill `sha256` in `Formula/feature-map.rb`,
-and add the formula to a tap (for example `homebrew-taptics` or a personal tap).
+Homebrew: see [PUBLISH.md](PUBLISH.md) — tag a release, publish to PyPI, then
+fill `url`/`sha256` on the formula and push it to a tap.
 
 playbook-app can keep using `./bin/feature-map` until the team switches to
 `brew install feature-map` / `pip install feature-map` and a PATH shim.

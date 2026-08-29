@@ -40,7 +40,7 @@ class FeaturemapTestCase(unittest.TestCase):
         env = os.environ.copy()
         env["PYTHONPATH"] = str(SRC) + os.pathsep + env.get("PYTHONPATH", "")
         result = subprocess.run(
-            [sys.executable, "-m", "featuremap", *args],
+            [sys.executable, "-m", "feature_map", *args],
             cwd=str(cwd or self.tmpdir),
             env=env,
             capture_output=True,

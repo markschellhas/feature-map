@@ -1,8 +1,8 @@
 import unittest
 from pathlib import Path
 
-from featuremap.path_normalize import normalize_path_candidate, passes_normalized_invariants
-from featuremap.path_resolve import resolve_candidate_paths
+from feature_map.path_normalize import normalize_path_candidate, passes_normalized_invariants
+from feature_map.path_resolve import resolve_candidate_paths
 
 
 class NormalizeTests(unittest.TestCase):

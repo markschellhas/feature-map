@@ -5,7 +5,7 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-from featuremap.paths import skill_dir as bundled_skill_dir
+from feature_map.paths import skill_dir as bundled_skill_dir
 
 AGENTS_MARKER = "<!-- feature-map:start -->"
 AGENTS_END = "<!-- feature-map:end -->"
@@ -55,8 +55,8 @@ if command -v feature-map >/dev/null 2>&1; then
   fi
 fi
 
-if python3 -c "import featuremap" >/dev/null 2>&1; then
-  exec python3 -m featuremap "$@"
+if python3 -c "import feature_map" >/dev/null 2>&1; then
+  exec python3 -m feature_map "$@"
 fi
 
 echo "feature-map is not installed. Try: pip install feature-map" >&2

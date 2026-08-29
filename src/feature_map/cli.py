@@ -2,22 +2,22 @@ import argparse
 import sys
 from pathlib import Path
 
-from featuremap._version import __version__
-from featuremap.commands.check_cmd import run_check
-from featuremap.commands.find_cmd import run_find
-from featuremap.commands.graph_cmd import run_graph
-from featuremap.commands.impact_cmd import run_impact
-from featuremap.commands.init_cmd import run_bootstrap, run_init_map
-from featuremap.commands.install_cmd import run_install
-from featuremap.commands.list_cmd import run_list
-from featuremap.commands.search_cmd import run_search
-from featuremap.commands.show_cmd import run_show
-from featuremap.commands.stats_cmd import run_stats
-from featuremap.commands.validate_cmd import run_validate
-from featuremap.config import load_config
-from featuremap.discover import find_features_dir, find_repo_root
-from featuremap.errors import CliError, FeaturesNotFoundError
-from featuremap.output import emit, emit_error
+from feature_map._version import __version__
+from feature_map.commands.check_cmd import run_check
+from feature_map.commands.find_cmd import run_find
+from feature_map.commands.graph_cmd import run_graph
+from feature_map.commands.impact_cmd import run_impact
+from feature_map.commands.init_cmd import run_bootstrap, run_init_map
+from feature_map.commands.install_cmd import run_install
+from feature_map.commands.list_cmd import run_list
+from feature_map.commands.search_cmd import run_search
+from feature_map.commands.show_cmd import run_show
+from feature_map.commands.stats_cmd import run_stats
+from feature_map.commands.validate_cmd import run_validate
+from feature_map.config import load_config
+from feature_map.discover import find_features_dir, find_repo_root
+from feature_map.errors import CliError, FeaturesNotFoundError
+from feature_map.output import emit, emit_error
 
 COMMANDS = {
     "list",

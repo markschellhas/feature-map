@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from featuremap.loader import list_map_files
+from feature_map.loader import list_map_files
 
 
 def run_find(features_dir: Path, fragment: str, as_json: bool = False):

@@ -5,8 +5,8 @@ from typing import Optional
 
 import yaml
 
-from featuremap.loader import all_slugs, extract_related_slug, list_map_files
-from featuremap.validate import RECOMMENDED_KEYS, REQUIRED_KEYS
+from feature_map.loader import all_slugs, extract_related_slug, list_map_files
+from feature_map.validate import RECOMMENDED_KEYS, REQUIRED_KEYS
 
 
 def normalize_app_name(app) -> Optional[str]:

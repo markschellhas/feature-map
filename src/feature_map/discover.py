@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-from featuremap.errors import FeaturesNotFoundError
+from feature_map.errors import FeaturesNotFoundError
 
 
 def _is_git_root(path: Path) -> bool:

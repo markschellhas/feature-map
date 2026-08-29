@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from featuremap.loader import all_slugs, list_map_files
-from featuremap.validate import validate_map_file
+from feature_map.loader import all_slugs, list_map_files
+from feature_map.validate import validate_map_file
 
 
 def run_validate(features_dir: Path, strict: bool = False, as_json: bool = False):
