@@ -19,12 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `feature-map init <name>` scaffolds a new map from the bundled template
 - `feature-map init --upgrade-skill` refreshes the agent skill from the installed package
 - Fixture-based test suite
-- Homebrew formula draft in `Formula/feature-map.rb`
-- pip-installable entrypoint via `pyproject.toml`
+- Homebrew formula in `Formula/feature-map.rb` (tap: `markschellhas/tap`)
+- pip-installable entrypoint via `pyproject.toml` (`feature-map-cli`)
 
 ### Changed
 
-- Public CLI and Homebrew name is `feature-map` (`brew install feature-map`).
+- Public CLI and Homebrew name is `feature-map` (`brew install markschellhas/tap/feature-map`).
   The PyPI project is `feature-map-cli` (`pip install feature-map-cli`) because
   PyPI treats `feature-map` as too similar to the existing biology package
   `featuremap`. The Python import is `feature_map`.

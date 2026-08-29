@@ -36,4 +36,4 @@ Homebrew: see [PUBLISH.md](PUBLISH.md) — tag a release, publish to PyPI, then
 fill `url`/`sha256` on the formula and push it to a tap.
 
 playbook-app can keep using `./bin/feature-map` until the team switches to
-`brew install feature-map` / `pip install feature-map-cli` and a PATH shim.
+`brew install markschellhas/tap/feature-map` / `pip install feature-map-cli` and a PATH shim.

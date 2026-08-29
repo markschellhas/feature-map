@@ -198,10 +198,10 @@ pip install -e /path/to/feature-map
 3. Add the formula to a tap (`homebrew-taptics` or a personal tap)
 
 ```bash
-brew tap markschellhas/taptics   # example
+brew tap markschellhas/tap
 brew install feature-map
 # or during bring-up:
-brew install --HEAD markschellhas/taptics/feature-map
+brew install --HEAD markschellhas/tap/feature-map
 ```
 
 The formula should leave `feature-map` on PATH and, when possible, install
@@ -249,7 +249,7 @@ Pick one:
 
 ```bash
 # once published
-brew install feature-map
+brew install markschellhas/tap/feature-map
 pip install feature-map-cli
 
 # until then

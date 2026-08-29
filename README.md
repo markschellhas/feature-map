@@ -12,9 +12,8 @@ prove paths still exist.
 ## Install
 
 ```bash
-pip install -e .
-# pip install feature-map-cli
-# brew install feature-map
+pip install feature-map-cli
+brew install markschellhas/tap/feature-map
 ```
 
 Requires Python 3.8+ and PyYAML. The CLI is `feature-map`. Install from PyPI as
