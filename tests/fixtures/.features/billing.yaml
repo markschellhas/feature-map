@@ -1,0 +1,18 @@
+feature_name: billing
+purpose: "Plans, invoices, and subscription state."
+
+entry_points:
+  - src/billing/plans.py
+  - src/missing_file.py
+
+apps:
+  - api
+
+user_flow:
+  primary: "Coach upgrades a plan and is billed."
+
+related_features:
+  - auth (must be signed in)
+
+notes: >
+  Includes a missing path so check reports a warning without failing.

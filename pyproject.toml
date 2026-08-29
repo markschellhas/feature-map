@@ -1,0 +1,64 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "featuremap"
+version = "1.0.0"
+description = "Cross-app architecture research CLI driven by .features/*.yaml maps"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+authors = [
+  { name = "Taptics" },
+]
+keywords = ["architecture", "feature-map", "cli", "agents"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Documentation",
+]
+dependencies = [
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.0",
+]
+
+[project.scripts]
+featuremap = "featuremap.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/markschellhas/featuremap"
+Repository = "https://github.com/markschellhas/featuremap"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/featuremap"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"share/featuremap" = "featuremap/share"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "src/featuremap",
+  "share/featuremap",
+  "tests",
+  "Formula",
+  "README.md",
+  "LICENSE",
+  "CHANGELOG.md",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]

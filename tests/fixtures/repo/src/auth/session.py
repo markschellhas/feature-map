@@ -1,0 +1,1 @@
+# Fixture auth entry point.

@@ -1,0 +1,19 @@
+feature_name: auth
+purpose: "Sign-in, session, and token issuance for the product."
+
+entry_points:
+  - src/auth/session.py
+  - src/app.py
+
+apps:
+  - api
+  - web
+
+user_flow:
+  primary: "User signs in and receives a session token."
+
+related_features:
+  - billing (subscription gate after sign-in)
+
+notes: >
+  Fixture map for the standalone featuremap test suite.

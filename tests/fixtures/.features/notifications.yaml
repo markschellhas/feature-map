@@ -1,0 +1,17 @@
+feature_name: notifications
+purpose: "Push and email notifications for product events."
+
+entry_points:
+  - src/notify/send.py
+
+apps:
+  - api
+
+user_flow:
+  primary: "Event fires, notification is delivered."
+
+related_features:
+  - does_not_exist (intentionally broken link)
+
+notes: >
+  Used to exercise validate warnings for unresolved related_features.

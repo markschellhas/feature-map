@@ -1,0 +1,92 @@
+# featuremap
+
+Cross-app architecture research CLI. Agents and engineers keep authoritative
+feature maps in `.features/*.yaml`; `featuremap` lists, searches, validates,
+and graphs them.
+
+A wiki stores architecture as prose — agents re-read a whole page to find three
+files. Feature Map stores **fields** (`purpose`, `entry_points`, `apps`) and a
+CLI that returns **names and sections**, so lookup is cheap and `check` can
+prove paths still exist.
+
+## Install
+
+```bash
+pip install -e .
+# pip install featuremap
+# brew install featuremap
+```
+
+Requires Python 3.8+ and PyYAML.
+
+## Usage
+
+```bash
+cd my-repo
+featuremap init
+featuremap init auth          # scaffold .features/auth.yaml
+featuremap list
+featuremap search billing
+featuremap validate
+```
+
+`featuremap init` is idempotent. It:
+
+1. Creates `.features/`
+2. Copies the agent skill to `.agents/skills/feature-map/` (or `.grok/skills/` if that tree already exists)
+3. Writes `.feature-map.yaml` defaults when missing
+4. Appends an `AGENTS.md` block (skip with `--no-agents`)
+5. Writes `bin/feature-map` as a shim to `featuremap` (skip with `--no-shim`)
+
+Refresh the skill after upgrading the package:
+
+```bash
+featuremap init --upgrade-skill
+```
+
+## Commands
+
+| Command | Purpose |
+|---------|---------|
+| `list` | All feature slugs |
+| `show <name>` / `<name>` | Print a map (or `--section`) |
+| `search <query>` | Full-text search |
+| `find <path>` | Reverse lookup by path fragment |
+| `graph [name]` | `related_features` graph (`mermaid`, `json`, `dot`) |
+| `validate [--strict]` | Structural checks |
+| `check` | Stale `entry_points` / `core_components` paths |
+| `impact <file>` | Which maps reference a file |
+| `stats` | Coverage summary |
+| `init` / `init <name>` | Bootstrap repo or scaffold a map |
+| `install` | Setup status |
+| `--json` / `--version` | Machine output / version |
+
+Exit codes: `0` ok, `1` user error, `2` validation failure (`--strict`).
+
+## Per-repo config
+
+`.feature-map.yaml` at the git root:
+
+```yaml
+features_dir: .features
+apps:
+  - api
+  - web
+required_sections:
+  - purpose
+  - entry_points
+min_cli_version: "1.0.0"
+```
+
+`apps` prefixes are used by `check` when resolving paths.
+
+## Develop
+
+```bash
+pip install -e ".[dev]"
+python -m pytest -q
+```
+
+## License
+
+MIT
