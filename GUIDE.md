@@ -100,7 +100,8 @@ monorepo's maps.
 
 Phase 2 is this directory. The Python package was moved, not rewritten:
 
-- Import package `feature_map`; public CLI / pip / Homebrew name `feature-map`
+- Import package `feature_map`; public CLI / Homebrew name `feature-map`;
+  PyPI project `feature-map-cli`
 - Assets (schema, template, agent skill) live in `share/feature_map/` and
   ship inside the wheel
 - Tests use `tests/fixtures/` only — no dependency on Taptics maps
@@ -168,13 +169,13 @@ From the `feature-map` repo root:
 python3 -m pip install build twine
 python3 -m build                # sdist + wheel in dist/
 python3 -m twine check dist/*
-python3 -m twine upload dist/   # once PyPI project "feature-map" exists
+python3 -m twine upload dist/   # once PyPI project "feature-map-cli" exists
 # Preferred: Trusted Publishing. Full steps: PUBLISH.md
 ```
 
 `pyproject.toml` already declares:
 
-- distribution name `feature-map`; import package `feature_map` under `src/feature_map`
+- distribution name `feature-map-cli`; import package `feature_map` under `src/feature_map`
 - console script `feature-map = feature_map.cli:main`
 - runtime dep `pyyaml>=6.0`
 - wheel force-include of `share/feature_map` → `feature_map/share`
@@ -249,7 +250,7 @@ Pick one:
 ```bash
 # once published
 brew install feature-map
-pip install feature-map
+pip install feature-map-cli
 
 # until then
 pip install "git+https://github.com/markschellhas/feature-map.git"
@@ -484,7 +485,7 @@ map with the feature, not after the fact.
 
 ```yaml
 # example GitHub Actions step
-- run: pip install feature-map
+- run: pip install feature-map-cli
 - run: feature-map validate
 # optional, once maps are trusted:
 # - run: feature-map validate --strict
@@ -496,7 +497,7 @@ every PR.
 ### 3.7 Upgrade
 
 ```bash
-pip install -U feature-map   # or brew upgrade
+pip install -U feature-map-cli   # or brew upgrade
 feature-map init --upgrade-skill
 ```
 

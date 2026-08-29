@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/project/feature-map/
+      url: https://pypi.org/project/feature-map-cli/
     permissions:
       id-token: write
       contents: read

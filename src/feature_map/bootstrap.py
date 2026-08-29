@@ -59,7 +59,7 @@ if python3 -c "import feature_map" >/dev/null 2>&1; then
   exec python3 -m feature_map "$@"
 fi
 
-echo "feature-map is not installed. Try: pip install feature-map" >&2
+echo "feature-map is not installed. Try: pip install feature-map-cli" >&2
 exit 1
 """
 

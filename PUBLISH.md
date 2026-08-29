@@ -4,7 +4,7 @@ This is the operator checklist for putting `feature-map` on the two install
 paths people will actually use:
 
 ```bash
-pip install feature-map
+pip install feature-map-cli
 brew install markschellhas/tap/feature-map   # tap first; core later
 ```
 
@@ -15,20 +15,24 @@ versioned) rather than `git HEAD`.
 
 | Surface | Name | Notes |
 |---------|------|--------|
-| pip / brew / CLI | `feature-map` | What you type |
+| CLI / brew | `feature-map` | What you type after install |
+| pip / PyPI | `feature-map-cli` | What you type for `pip install` |
 | Python import | `feature_map` | Hyphens are illegal in module names |
-| PyPI project | `feature-map` | Same project as `feature_map` (PEP 503) |
+| **Cannot register** | `feature-map` | PyPI strips hyphens for similarity; collides with `featuremap` |
 | **Not this project** | `featuremap` | [Existing PyPI package](https://pypi.org/project/featuremap/) (biology). `pip install featuremap` is the wrong thing. |
 
-Confirm the name is still free before every first-time upload:
+Confirm the PyPI name is still free before every first-time upload:
 
 ```bash
 # should 404
-curl -sI https://pypi.org/pypi/feature-map/json | head -1
+curl -sI https://pypi.org/pypi/feature-map-cli/json | head -1
 ```
 
+A 404 on `feature-map` is **not** enough. PyPI also rejects names that
+ultranormalize to an existing project (`feature-map` → `featuremap`).
+
 A pending publisher on PyPI does **not** reserve the name. Someone else can
-claim `feature-map` until your first successful upload.
+claim `feature-map-cli` until your first successful upload.
 
 ---
 
@@ -77,24 +81,25 @@ python3 -m build
 python3 -m twine check dist/*
 ls dist
 # expect something like:
-#   feature_map-1.0.0-py3-none-any.whl
-#   feature_map-1.0.0.tar.gz
+#   feature_map_cli-1.0.0-py3-none-any.whl
+#   feature_map_cli-1.0.0.tar.gz
 ```
 
-Hatchling normalizes the filename to `feature_map-…` even though the project
-name is `feature-map`. That is correct.
+Hatchling normalizes the filename to `feature_map_cli-…` even though the
+project name is `feature-map-cli`. That is correct. The import package
+inside the wheel is still `feature_map`.
 
 Sanity-check the wheel:
 
 ```bash
-python3 -m pip install dist/feature_map-*.whl
+python3 -m pip install dist/feature_map_cli-*.whl
 feature-map --version
 python3 -c "import feature_map; print(feature_map.__version__)"
 # confirm the other package was not involved:
 python3 -c "import featuremap" 2>/dev/null && echo "WARNING: biology package also installed"
 ```
 
-Uninstall when done: `pip uninstall -y feature-map`.
+Uninstall when done: `pip uninstall -y feature-map-cli`.
 
 ### 1.3 Trusted Publishing (preferred)
 
@@ -108,7 +113,7 @@ PyPI docs: [Creating a project with a Trusted Publisher](https://docs.pypi.org/t
 
    | Field | Value |
    |-------|--------|
-   | PyPI project name | `feature-map` |
+   | PyPI project name | `feature-map-cli` |
    | Owner | `markschellhas` |
    | Repository | `feature-map` |
    | Workflow name | `publish.yml` |
@@ -133,12 +138,12 @@ PyPI docs: [Creating a project with a Trusted Publisher](https://docs.pypi.org/t
 8. Confirm:
 
    ```bash
-   pip index versions feature-map
-   pip install feature-map
+   pip index versions feature-map-cli
+   pip install feature-map-cli
    feature-map --version
    ```
 
-   Project page: `https://pypi.org/project/feature-map/`
+   Project page: `https://pypi.org/project/feature-map-cli/`
 
 If the pending publisher is never used, it does not hold the name. Upload
 promptly after registering it.
@@ -148,12 +153,12 @@ promptly after registering it.
 Create a **project-scoped** API token at PyPI → Account settings → API tokens.
 For the first upload, PyPI only offers an account-wide token (`scope: entire
 account`). After the project exists, revoke that token and mint one scoped to
-`feature-map`.
+`feature-map-cli`.
 
 ```bash
 # TestPyPI first
 python3 -m twine upload --repository testpypi dist/*
-pip install -i https://test.pypi.org/simple --extra-index-url https://pypi.org/simple feature-map
+pip install -i https://test.pypi.org/simple --extra-index-url https://pypi.org/simple feature-map-cli
 
 # Production
 python3 -m twine upload dist/*
@@ -192,7 +197,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/project/feature-map/
+      url: https://pypi.org/project/feature-map-cli/
     permissions:
       id-token: write
       contents: read
@@ -233,7 +238,7 @@ dependencies as checksummed `resource` blocks.
 After PyPI has `1.0.0`:
 
 ```bash
-curl -sL https://pypi.org/pypi/feature-map/json | python3 -c \
+curl -sL https://pypi.org/pypi/feature-map-cli/json | python3 -c \
   "import json,sys; r=json.load(sys.stdin)['urls'];
 [print(u['url'], u['digests']['sha256']) for u in r if u['packagetype']=='sdist']"
 ```
@@ -246,7 +251,7 @@ class FeatureMap < Formula
 
   desc "Cross-app architecture research CLI"
   homepage "https://github.com/markschellhas/feature-map"
-  url "https://files.pythonhosted.org/packages/source/f/feature-map/feature_map-1.0.0.tar.gz"
+  url "https://files.pythonhosted.org/packages/source/f/feature-map-cli/feature_map_cli-1.0.0.tar.gz"
   sha256 "REPLACE_ME"
   license "MIT"
   head "https://github.com/markschellhas/feature-map.git", branch: "master"
@@ -356,11 +361,12 @@ Do not submit to core on day one.
 Uncomment the real install lines in `README.md`:
 
 ```bash
-pip install feature-map
+pip install feature-map-cli
 brew install markschellhas/tap/feature-map
 ```
 
-Keep the warning that `pip install featuremap` is a different project.
+Keep the warning that `pip install featuremap` is a different project, and
+that `feature-map` cannot be registered on PyPI.
 
 PyPI project metadata (description, homepage, license) comes from
 `pyproject.toml` + `README.md` at upload time. To change it, cut a new
@@ -378,7 +384,7 @@ PyPI page will already show the README.
 - [ ] `python -m build && twine check dist/*`
 - [ ] Pending publisher still valid **or** project already exists on PyPI
 - [ ] Tag `vX.Y.Z` pushed; Actions publish job green
-- [ ] `pip install feature-map` on a clean machine prints the new version
+- [ ] `pip install feature-map-cli` on a clean machine prints the new version
 - [ ] Formula `url` / `sha256` / `resource` updated
 - [ ] Tap commit pushed; `brew install --build-from-source` works
 - [ ] README install lines match reality

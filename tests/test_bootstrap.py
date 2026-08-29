@@ -97,7 +97,7 @@ class BootstrapTests(FeaturemapTestCase):
         (repo / ".git").mkdir()
         self.run_cli(["init"], cwd=repo)
         shim = (repo / "bin" / "feature-map").read_text(encoding="utf-8")
-        self.assertIn("pip install feature-map", shim)
+        self.assertIn("pip install feature-map-cli", shim)
         self.assertIn("command -v feature-map", shim)
         self.assertNotIn("pip install featuremap", shim)
 
