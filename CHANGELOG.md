@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- npm package `feature-map-cli` (`npm install -g feature-map-cli`) wraps the
+  PyPI CLI in a local virtualenv. Still requires Python 3.8+.
+
 ## [1.0.0] — 2026-08-29
 
 ### Added

@@ -1,0 +1,40 @@
+{
+  "name": "feature-map-cli",
+  "version": "1.0.0",
+  "description": "Cross-app architecture research CLI driven by .features/*.yaml maps",
+  "license": "MIT",
+  "author": "Taptics",
+  "keywords": [
+    "architecture",
+    "feature-map",
+    "cli",
+    "agents"
+  ],
+  "homepage": "https://github.com/markschellhas/feature-map",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markschellhas/feature-map.git"
+  },
+  "bugs": {
+    "url": "https://github.com/markschellhas/feature-map/issues"
+  },
+  "bin": {
+    "feature-map": "bin/feature-map.js",
+    "feature-map-cli": "bin/feature-map.js"
+  },
+  "files": [
+    "bin/",
+    "scripts/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

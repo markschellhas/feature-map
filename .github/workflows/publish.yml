@@ -33,3 +33,21 @@ jobs:
       - run: pip install -U build
       - run: python -m build
       - uses: pypa/gh-action-pypi-publish@release/v1
+
+  publish-npm:
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/feature-map-cli
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+      - run: node --check bin/feature-map.js && node --check scripts/postinstall.js && node --check scripts/python.js
+      - run: npm publish --access public

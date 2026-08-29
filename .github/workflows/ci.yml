@@ -24,3 +24,8 @@ jobs:
         run: |
           feature-map --version
           feature-map --help
+      - name: npm wrapper syntax
+        run: |
+          node --check bin/feature-map.js
+          node --check scripts/postinstall.js
+          node --check scripts/python.js

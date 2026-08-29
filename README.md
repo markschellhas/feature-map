@@ -13,10 +13,12 @@ prove paths still exist.
 
 ```bash
 pip install feature-map-cli
+npm install -g feature-map-cli
 brew install markschellhas/tap/feature-map
 ```
 
-Requires Python 3.8+ and PyYAML. The CLI is `feature-map`. Install from PyPI as
+Requires Python 3.8+ and PyYAML (the npm package installs the PyPI CLI into a
+local venv). The CLI is `feature-map`. Install from PyPI or npm as
 `feature-map-cli` — `pip install featuremap` is a different (biology) project,
 and `feature-map` is blocked on PyPI as too similar to that name.
 

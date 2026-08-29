@@ -1,24 +1,26 @@
 # Publish Feature Map to PyPI and Homebrew
 
-This is the operator checklist for putting `feature-map` on the two install
+This is the operator checklist for putting `feature-map` on the install
 paths people will actually use:
 
 ```bash
 pip install feature-map-cli
+npm install -g feature-map-cli
 brew install markschellhas/tap/feature-map   # tap first; core later
 ```
 
-Do PyPI first. Homebrew should install from the PyPI sdist (checksummed,
-versioned) rather than `git HEAD`.
+Do PyPI first. npm and Homebrew install the PyPI package (npm via a venv
+postinstall; Homebrew from the checksummed sdist) rather than `git HEAD`.
 
 ## Names — do not mix these up
 
 | Surface | Name | Notes |
 |---------|------|--------|
 | CLI / brew | `feature-map` | What you type after install |
-| pip / PyPI | `feature-map-cli` | What you type for `pip install` |
+| pip / npm | `feature-map-cli` | What you type for `pip install` / `npm install` |
 | Python import | `feature_map` | Hyphens are illegal in module names |
-| **Cannot register** | `feature-map` | PyPI strips hyphens for similarity; collides with `featuremap` |
+| **Cannot register (PyPI)** | `feature-map` | PyPI strips hyphens for similarity; collides with `featuremap` |
+| **Cannot register (npm)** | `feature-map` | [Existing npm package](https://www.npmjs.com/package/feature-map) |
 | **Not this project** | `featuremap` | [Existing PyPI package](https://pypi.org/project/featuremap/) (biology). `pip install featuremap` is the wrong thing. |
 
 Confirm the PyPI name is still free before every first-time upload:
@@ -44,6 +46,7 @@ claim `feature-map-cli` until your first successful upload.
    - `pyproject.toml` → `[project].version`
    - `src/feature_map/_version.py` → `__version__`
    - `share/feature_map/skill/SKILL.md` frontmatter `version:`
+   - `package.json` → `"version"`
    - `CHANGELOG.md` (move `[Unreleased]` into the tagged version)
 4. Tests pass:
 
@@ -356,17 +359,79 @@ Do not submit to core on day one.
 
 ---
 
-## 3. After both are live
+## 3. npm
 
-Uncomment the real install lines in `README.md`:
+Package name: `feature-map-cli`. The bin is still `feature-map`.
+`feature-map` is already taken on npm.
+
+The npm tarball is a thin wrapper. `postinstall` creates a venv and
+`pip install feature-map-cli==<package.json version>`. Python 3.8+ must
+be on PATH at install time.
+
+### 3.1 First publish (laptop)
+
+The project does not exist on npm until the first `npm publish`.
+
+1. `npm login` (2FA if your account requires it)
+2. From the repo root:
+
+   ```bash
+   node --check bin/feature-map.js
+   npm pack --dry-run
+   npm publish --access public
+   ```
+
+3. Confirm:
+
+   ```bash
+   npm view feature-map-cli version
+   npm install -g feature-map-cli
+   feature-map --version
+   ```
+
+   Package page: `https://www.npmjs.com/package/feature-map-cli`
+
+### 3.2 Trusted Publishing (later tags)
+
+npm docs: [Trusted publishers](https://docs.npmjs.com/trusted-publishers).
+
+1. After the package exists, on npmjs.com: package **Settings → Trusted Publisher**.
+2. GitHub Actions, add:
+
+   | Field | Value |
+   |-------|--------|
+   | Organization or user | `markschellhas` |
+   | Repository | `feature-map` |
+   | Workflow filename | `publish.yml` |
+   | Environment | `npm` |
+
+3. On GitHub: **Settings → Environments → New environment** named `npm`.
+   Add a required reviewer (you).
+4. `.github/workflows/publish.yml` already has a `publish-npm` job with
+   `id-token: write` and no `NPM_TOKEN`.
+
+Do not put an npm token in repo secrets when using Trusted Publishing.
+
+### 3.3 Later npm releases
+
+Same tag as PyPI. `package.json` `"version"` must match
+`pyproject.toml`. The wrapper pins `feature-map-cli==<that version>`, so
+PyPI must already have that version (the `publish` job runs first).
+
+---
+
+## 4. After registries are live
+
+Keep README install lines in sync:
 
 ```bash
 pip install feature-map-cli
+npm install -g feature-map-cli
 brew install markschellhas/tap/feature-map
 ```
 
 Keep the warning that `pip install featuremap` is a different project, and
-that `feature-map` cannot be registered on PyPI.
+that `feature-map` cannot be registered on PyPI or npm.
 
 PyPI project metadata (description, homepage, license) comes from
 `pyproject.toml` + `README.md` at upload time. To change it, cut a new
@@ -377,14 +442,15 @@ PyPI page will already show the README.
 
 ---
 
-## 4. Release checklist
+## 5. Release checklist
 
-- [ ] Version bumped in `pyproject.toml`, `_version.py`, skill frontmatter, changelog
+- [ ] Version bumped in `pyproject.toml`, `_version.py`, skill frontmatter, `package.json`, changelog
 - [ ] `pytest` green
 - [ ] `python -m build && twine check dist/*`
 - [ ] Pending publisher still valid **or** project already exists on PyPI
 - [ ] Tag `vX.Y.Z` pushed; Actions publish job green
 - [ ] `pip install feature-map-cli` on a clean machine prints the new version
+- [ ] `npm view feature-map-cli version` matches the tag
 - [ ] Formula `url` / `sha256` / `resource` updated
 - [ ] Tap commit pushed; `brew install --build-from-source` works
 - [ ] README install lines match reality

@@ -251,6 +251,7 @@ Pick one:
 # once published
 brew install markschellhas/tap/feature-map
 pip install feature-map-cli
+npm install -g feature-map-cli
 
 # until then
 pip install "git+https://github.com/markschellhas/feature-map.git"
@@ -497,7 +498,7 @@ every PR.
 ### 3.7 Upgrade
 
 ```bash
-pip install -U feature-map-cli   # or brew upgrade
+pip install -U feature-map-cli   # or: npm update -g feature-map-cli / brew upgrade
 feature-map init --upgrade-skill
 ```
 
