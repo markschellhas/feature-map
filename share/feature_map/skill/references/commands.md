@@ -25,6 +25,7 @@ Global flags: `--json`, `--version`
 | `init --upgrade-skill` | Refresh the agent skill in every deployed location |
 | `install [--json]` | Verify install and repo setup; reports every skill
 location and the packaged `GUIDE.md` path |
+| `update [--json]` | Upgrade this CLI via the package manager that installed it |
 
 ## Examples
 
@@ -42,6 +43,7 @@ feature-map stats --json
 feature-map init
 feature-map init -y -h claude
 feature-map init billing --force
+feature-map update
 ```
 
 ## Exit codes

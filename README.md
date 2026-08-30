@@ -54,9 +54,11 @@ nobody asked for. Known: `.agents/skills`, `.claude/skills`, `.grok/skills`.
 For anything else, name it yourself — `--skill-dir .my-agent/skills`, or
 `skill_dirs:` in `.feature-map.yaml` — and it is always written.
 
-Refresh the skill (every location) after upgrading the package:
+Upgrade the CLI, then refresh the skill (every location) after a new package
+version:
 
 ```bash
+feature-map update
 feature-map init --upgrade-skill
 ```
 
@@ -76,6 +78,7 @@ feature-map init --upgrade-skill
 | `init [-y] [-h <harness>] [--skill-dir DIR]` | Bootstrap repo; optionally launch a harness to author maps |
 | `init <name> [--force]` | Scaffold a map from the template |
 | `install` | Setup status |
+| `update` | Upgrade this CLI via pip, npm, brew, pipx, or uv |
 | `--json` / `--version` | Machine output / version |
 
 Exit codes: `0` ok, `1` user error, `2` validation failure (`--strict`).

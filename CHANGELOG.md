@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `feature-map update` upgrades the installed CLI (or reports that it is
+  already latest). Detects pip, npm, Homebrew, pipx, and uv from the
+  running executable and uses that package manager.
 - `init` now mirrors the agent skill into every *known* harness skill directory
   the repo already uses, alongside the unchanged primary target. Known set:
   `.agents/skills`, `.claude/skills`, `.grok/skills`. A harness is mirrored only
