@@ -48,6 +48,7 @@ def run_bootstrap(
     as_json: bool = False,
     yes: bool = False,
     harness: str = None,
+    skill_dirs=(),
 ):
     payload = bootstrap_repo(
         repo_root,
@@ -55,6 +56,7 @@ def run_bootstrap(
         agents=agents,
         shim=shim,
         force=force,
+        skill_dirs=skill_dirs,
     )
     if as_json:
         return payload
@@ -62,6 +64,8 @@ def run_bootstrap(
     print("Initialized Feature Map in this repository:")
     print(f"  .features/: {payload['features_dir']}")
     print(f"  skill: {payload['skill']}")
+    for mirror in payload.get("skill_mirrors") or []:
+        print(f"  skill (mirror): {mirror}")
     print(f"  config: {payload['config']}")
     if payload.get("shim"):
         print(f"  shim: {payload['shim']}")

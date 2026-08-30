@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `init` now mirrors the agent skill into every *known* harness skill directory
+  the repo already uses, alongside the unchanged primary target. Known set:
+  `.agents/skills`, `.claude/skills`, `.grok/skills`. A harness is mirrored only
+  when its config directory exists, so `init` never seeds an agent tree nobody
+  asked for, and no harness is privileged over another.
+- `--skill-dir DIR` (repeatable) and `skill_dirs:` in `.feature-map.yaml` mirror
+  the skill into directories for harnesses the CLI does not know about. These
+  are always written.
+- The `AGENTS.md` block now names the deployed skill by path, so an agent that
+  only reads `AGENTS.md` can find it without guessing.
+- `references/example-map.md`: a complete feature map with the reasoning for
+  every line, plus the same feature written badly for contrast.
+- `GUIDE.md` ships inside the package, so the skill's cross-references resolve
+  for pip/npm/brew installs. `install` reports its path (`--json` → `.guide`).
+- `install` reports every known skill location (`--json` → `.skill_locations`).
+
 - After bootstrapping, `feature-map init` offers to launch your agent harness
   (`claude`, `cursor-agent`, `opencode`, `grok`, `codex`, `gemini`, `pi`) to
   scour the repo and author the first maps, with an arrow-key picker when

@@ -19,10 +19,12 @@ Global flags: `--json`, `--version`
 | `impact <file> [--transitive] [--json]` | Features referencing a file |
 | `stats [--json]` | Coverage statistics |
 | `init` | Bootstrap `.features/`, agent skill, config, AGENTS.md, shim |
+| `init --skill-dir DIR` | Mirror the skill into an extra directory (repeatable) |
 | `init [-y] [-h <harness>]` | Also offer/launch a harness (claude\|cursor-agent\|opencode\|grok\|codex\|gemini\|pi) to author maps |
 | `init <name> [--force]` | Scaffold `.features/<name>.yaml` |
-| `init --upgrade-skill` | Refresh the agent skill from the installed package |
-| `install [--json]` | Verify install and repo setup |
+| `init --upgrade-skill` | Refresh the agent skill in every deployed location |
+| `install [--json]` | Verify install and repo setup; reports every skill
+location and the packaged `GUIDE.md` path |
 
 ## Examples
 

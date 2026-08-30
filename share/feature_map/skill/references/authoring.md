@@ -1,6 +1,8 @@
 # Authoring Feature Maps
 
 Feature maps live in `.features/<slug>.yaml` at the repo root.
+`example-map.md` shows a complete one, with the reasoning for every line and
+the same feature written badly for contrast. Read it before your first map.
 
 ## Required sections
 
@@ -35,3 +37,4 @@ Index, not essay. Completeness is doors, apps, and couplings. Delete a sentence 
 ## Schema
 
 JSON Schema ships with the package at `share/feature_map/schema/feature-map.schema.json`.
+`validate` enforces it; `check` verifies the paths.

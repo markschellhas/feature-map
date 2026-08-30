@@ -36,16 +36,25 @@ feature-map validate
 `feature-map init` is idempotent. It:
 
 1. Creates `.features/`
-2. Copies the agent skill to `.agents/skills/feature-map/` (or `.grok/skills/` if that tree already exists)
-3. Writes `.feature-map.yaml` defaults when missing
-4. Appends an `AGENTS.md` block (skip with `--no-agents`)
-5. Writes `bin/feature-map` as a repo-local shim (skip with `--no-shim`)
-6. Offers to launch your agent harness (claude, cursor-agent, opencode, grok,
+2. Copies the agent skill to `.agents/skills/feature-map/` (or `.grok/skills/` if that tree already exists),
+   and mirrors it into any other known harness directory the repo already uses
+3. Adds extra copies for `--skill-dir DIR` / `skill_dirs:` targets
+4. Writes `.feature-map.yaml` defaults when missing
+5. Appends an `AGENTS.md` block naming the skill's path (skip with `--no-agents`)
+6. Writes `bin/feature-map` as a repo-local shim (skip with `--no-shim`)
+7. Offers to launch your agent harness (claude, cursor-agent, opencode, grok,
    codex, gemini, pi) to scour the repo and author the first maps. Skip the
    prompt with `-y` and pick a harness directly with `-h <name>` (e.g.
    `feature-map init -y -h claude`).
 
-Refresh the skill after upgrading the package:
+Skill directories are harness-neutral. `.agents/skills/` stays the primary
+target; a known harness is *additionally* mirrored only when the repo already
+uses it (its config directory exists), so `init` never seeds an agent tree
+nobody asked for. Known: `.agents/skills`, `.claude/skills`, `.grok/skills`.
+For anything else, name it yourself — `--skill-dir .my-agent/skills`, or
+`skill_dirs:` in `.feature-map.yaml` — and it is always written.
+
+Refresh the skill (every location) after upgrading the package:
 
 ```bash
 feature-map init --upgrade-skill
@@ -64,7 +73,7 @@ feature-map init --upgrade-skill
 | `check` | Stale `entry_points` / `core_components` paths |
 | `impact <file>` | Which maps reference a file |
 | `stats` | Coverage summary |
-| `init [-y] [-h <harness>]` | Bootstrap repo; optionally launch a harness to author maps |
+| `init [-y] [-h <harness>] [--skill-dir DIR]` | Bootstrap repo; optionally launch a harness to author maps |
 | `init <name> [--force]` | Scaffold a map from the template |
 | `install` | Setup status |
 | `--json` / `--version` | Machine output / version |
@@ -84,9 +93,12 @@ required_sections:
   - purpose
   - entry_points
 min_cli_version: "1.0.0"
+skill_dirs:
+  - .my-agent/skills
 ```
 
-`apps` prefixes are used by `check` when resolving paths.
+`apps` prefixes are used by `check` when resolving paths. `skill_dirs` adds
+skill mirror targets for harnesses the CLI does not know about.
 
 ## Develop
 

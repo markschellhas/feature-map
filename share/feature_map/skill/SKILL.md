@@ -14,7 +14,8 @@ Maps are **fields, not a wiki**. Prefer `list` / `search` / `show --section`
 over reading a long markdown doc. That keeps token use on paths and purpose,
 not narrative. When writing or updating a map, same rule: cover every door
 and coupling; do not write narrative (`references/authoring.md`, Density).
-See the package `GUIDE.md` ("Why this, not a wiki").
+`references/example-map.md` is a full map with the reasoning for every line.
+Full narrative: the packaged `GUIDE.md` (path: `feature-map install --json` → `.guide.path`), "Why this, not a wiki".
 
 ## When to invoke
 
@@ -55,4 +56,5 @@ See `references/commands.md` for the full CLI reference.
 ## Authoring
 
 See `references/authoring.md` for shape, density, and conventions.
+See `references/example-map.md` for a complete map, annotated line by line.
 See `references/existing-repos.md` when adopting Feature Map on a codebase that already exists.

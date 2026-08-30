@@ -277,13 +277,24 @@ This is idempotent. It:
 
 1. Creates `.features/`
 2. Copies the agent skill to `.agents/skills/feature-map/`
-   (or `.grok/skills/feature-map/` if that tree already exists)
+   (or `.grok/skills/feature-map/` if that tree already exists), and
+   mirrors it into every other known harness directory the repo already
+   uses, plus any `--skill-dir` / `skill_dirs:` target
 3. Writes `.feature-map.yaml` if missing
 4. Appends (or refreshes) an `AGENTS.md` block that **requires** agents
-   to use Feature Map before feature work
+   to use Feature Map before feature work, and names the deployed skill
+   by path so an agent that only reads `AGENTS.md` can still find it
 5. Writes `bin/feature-map` — a shim that execs `feature-map` on PATH
 
-Useful flags: `--no-agents`, `--no-shim`, `--upgrade-skill`, `--force`.
+Skill directories are harness-neutral. `.agents/skills/` stays the primary
+target; a known harness is *additionally* mirrored only when the repo already
+uses it (its config directory exists), so `init` never seeds an agent tree
+nobody asked for. Known: `.agents/skills`, `.claude/skills`, `.grok/skills`.
+For anything else, name it yourself — `--skill-dir .my-agent/skills`, or
+`skill_dirs:` in `.feature-map.yaml` — and it is always written.
+
+Useful flags: `--no-agents`, `--no-shim`, `--upgrade-skill`, `--force`,
+`--skill-dir DIR` (repeatable).
 Also: `-y/--yes` skips the "start authoring maps?" prompt and
 `-h/--harness <name>` picks the agent harness non-interactively
 (`claude|cursor-agent|opencode|grok|codex|gemini|pi`). On an empty repo
@@ -303,6 +314,9 @@ required_sections:
   - purpose
   - entry_points
 min_cli_version: "1.0.0"
+# Extra skill mirror targets for harnesses this CLI does not know about:
+# skill_dirs:
+#   - .my-agent/skills
 ```
 
 ### 3.3 Instruction for agents — always use the feature map
