@@ -3,6 +3,8 @@ import subprocess
 import unittest
 from pathlib import Path
 
+from feature_map._version import __version__
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -25,5 +27,5 @@ class NpmWrapperTests(unittest.TestCase):
     def test_package_metadata(self):
         pkg = (ROOT / "package.json").read_text(encoding="utf-8")
         self.assertIn('"name": "feature-map-cli"', pkg)
-        self.assertIn('"version": "1.0.0"', pkg)
+        self.assertIn(f'"version": "{__version__}"', pkg)
         self.assertIn('"feature-map":', pkg)

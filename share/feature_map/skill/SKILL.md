@@ -1,6 +1,6 @@
 ---
 name: feature-map
-version: 1.0.0
+version: 1.1.0
 description: "Research cross-app architecture via the Feature Map CLI before feature work, debugging, PRDs, or implementation plans. Run list, show, search, find, graph, validate, and check against .features/*.yaml. On existing repos with no maps, scour the code and author maps first."
 ---
 

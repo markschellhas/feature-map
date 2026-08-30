@@ -1,6 +1,7 @@
 import json
 import unittest
 
+from feature_map._version import __version__
 from helpers import FeaturemapTestCase
 
 
@@ -8,7 +9,7 @@ class CliTests(FeaturemapTestCase):
     def test_version(self):
         result = self.run_cli(["--version"])
         self.assertEqual(result.returncode, 0)
-        self.assertIn("1.0.0", result.stdout)
+        self.assertIn(__version__, result.stdout)
 
     def test_help_lists_commands(self):
         result = self.run_cli(["--help"])

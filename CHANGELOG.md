@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-08-30
+
 ### Added
 
 - `feature-map update` upgrades the installed CLI (or reports that it is
@@ -27,7 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GUIDE.md` ships inside the package, so the skill's cross-references resolve
   for pip/npm/brew installs. `install` reports its path (`--json` → `.guide`).
 - `install` reports every known skill location (`--json` → `.skill_locations`).
-
 - After bootstrapping, `feature-map init` offers to launch your agent harness
   (`claude`, `cursor-agent`, `opencode`, `grok`, `codex`, `gemini`, `pi`) to
   scour the repo and author the first maps, with an arrow-key picker when
@@ -35,6 +36,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `-h/--harness <name>`; prompts are skipped for `--json` and non-TTY runs.
 - npm package `feature-map-cli` (`npm install -g feature-map-cli`) wraps the
   PyPI CLI in a local virtualenv. Still requires Python 3.8+.
+
+### Changed
+
+- CLI `--help` describes the tool as a cross-app feature index for agents.
 
 ## [1.0.0] — 2026-08-29
 
@@ -62,5 +67,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `init` writes `<!-- feature-map:start -->` in `AGENTS.md` and migrates the
   older `<!-- featuremap:start -->` block.
 
-[Unreleased]: https://github.com/markschellhas/feature-map/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/markschellhas/feature-map/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/markschellhas/feature-map/releases/tag/v1.1.0
 [1.0.0]: https://github.com/markschellhas/feature-map/releases/tag/v1.0.0
