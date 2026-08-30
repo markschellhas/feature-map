@@ -51,7 +51,8 @@ def _release_short_help(subparser):
 def build_parser():
     parser = argparse.ArgumentParser(
         prog="feature-map",
-        description="Feature Map CLI — cross-app architecture research tool",
+        description="Feature Map CLI — cross-app feature index for agents\nby @MarkSchellhas",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--json", action="store_true", help="Machine-readable JSON output")
     parser.add_argument("--version", action="version", version=__version__)

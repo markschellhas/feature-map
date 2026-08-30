@@ -14,6 +14,8 @@ class CliTests(FeaturemapTestCase):
         result = self.run_cli(["--help"])
         self.assertEqual(result.returncode, 0)
         self.assertIn("feature-map", result.stdout)
+        self.assertIn("cross-app feature index for agents", result.stdout)
+        self.assertIn("by @MarkSchellhas", result.stdout)
         self.assertNotIn("usage: featuremap ", result.stdout)
         for name in ("list", "show", "search", "find", "graph", "validate", "init", "update"):
             self.assertIn(name, result.stdout)
