@@ -23,6 +23,7 @@ Global flags: `--json`, `--version`
 | `init <name> [--force]` | Scaffold `.features/<name>.yaml` |
 | `init --upgrade-skill` | Refresh the agent skill from the installed package |
 | `install [--json]` | Verify install and repo setup |
+| `update [--json]` | Upgrade this CLI via the package manager that installed it |
 
 ## Examples
 
@@ -40,6 +41,7 @@ feature-map stats --json
 feature-map init
 feature-map init -y -h claude
 feature-map init billing --force
+feature-map update
 ```
 
 ## Exit codes

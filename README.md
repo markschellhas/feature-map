@@ -45,9 +45,10 @@ feature-map validate
    prompt with `-y` and pick a harness directly with `-h <name>` (e.g.
    `feature-map init -y -h claude`).
 
-Refresh the skill after upgrading the package:
+Upgrade the CLI, then refresh the skill after a new package version:
 
 ```bash
+feature-map update
 feature-map init --upgrade-skill
 ```
 
@@ -67,6 +68,7 @@ feature-map init --upgrade-skill
 | `init [-y] [-h <harness>]` | Bootstrap repo; optionally launch a harness to author maps |
 | `init <name> [--force]` | Scaffold a map from the template |
 | `install` | Setup status |
+| `update` | Upgrade this CLI via pip, npm, brew, pipx, or uv |
 | `--json` / `--version` | Machine output / version |
 
 Exit codes: `0` ok, `1` user error, `2` validation failure (`--strict`).

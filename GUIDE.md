@@ -503,9 +503,18 @@ every PR.
 ### 3.7 Upgrade
 
 ```bash
-pip install -U feature-map-cli   # or: npm update -g feature-map-cli / brew upgrade
+feature-map update
+# or, by hand:
+# pip install -U feature-map-cli
+# npm install -g feature-map-cli@latest
+# brew upgrade markschellhas/tap/feature-map
 feature-map init --upgrade-skill
 ```
+
+`feature-map update` detects whether this copy came from pip, npm, Homebrew,
+pipx, or uv and upgrades through that channel. If you are already on the
+latest version it says so and exits 0. A source/editable checkout cannot
+be upgraded this way — install a released package instead.
 
 `--upgrade-skill` overwrites the deployed `SKILL.md` and references from
 the installed package version. Re-run `feature-map init` to refresh the

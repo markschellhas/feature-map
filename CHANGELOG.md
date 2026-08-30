@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `feature-map update` upgrades the installed CLI (or reports that it is
+  already latest). Detects pip, npm, Homebrew, pipx, and uv from the
+  running executable and uses that package manager.
 - After bootstrapping, `feature-map init` offers to launch your agent harness
   (`claude`, `cursor-agent`, `opencode`, `grok`, `codex`, `gemini`, `pi`) to
   scour the repo and author the first maps, with an arrow-key picker when

@@ -15,7 +15,7 @@ class CliTests(FeaturemapTestCase):
         self.assertEqual(result.returncode, 0)
         self.assertIn("feature-map", result.stdout)
         self.assertNotIn("usage: featuremap ", result.stdout)
-        for name in ("list", "show", "search", "find", "graph", "validate", "init"):
+        for name in ("list", "show", "search", "find", "graph", "validate", "init", "update"):
             self.assertIn(name, result.stdout)
 
     def test_list_and_show(self):

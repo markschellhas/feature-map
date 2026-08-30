@@ -9,6 +9,7 @@ from feature_map.commands.graph_cmd import run_graph
 from feature_map.commands.impact_cmd import run_impact
 from feature_map.commands.init_cmd import run_bootstrap, run_init_map
 from feature_map.commands.install_cmd import run_install
+from feature_map.commands.update_cmd import run_update
 from feature_map.commands.list_cmd import run_list
 from feature_map.commands.search_cmd import run_search
 from feature_map.commands.show_cmd import run_show
@@ -32,9 +33,10 @@ COMMANDS = {
     "stats",
     "init",
     "install",
+    "update",
 }
 
-OPTIONAL_FEATURES_COMMANDS = {"init", "install"}
+OPTIONAL_FEATURES_COMMANDS = {"init", "install", "update"}
 
 
 def _release_short_help(subparser):
@@ -58,6 +60,11 @@ def build_parser():
 
     subparsers.add_parser("list", help="List all feature slugs")
     subparsers.add_parser("install", help="Verify install and repo setup")
+    subparsers.add_parser(
+        "update",
+        help="Update this CLI via the package manager that installed it",
+        description="Update this CLI via the package manager that installed it",
+    )
 
     show_parser = subparsers.add_parser("show", help="Show a feature map")
     show_parser.add_argument("name", help="Feature slug")
@@ -182,6 +189,9 @@ def dispatch(args):
 
     if command == "install":
         return 0, run_install(repo_root, as_json=as_json)
+
+    if command == "update":
+        return 0, run_update(as_json=as_json)
 
     if command == "show":
         return 0, run_show(features_dir, args.name, section=args.section, as_json=as_json)
