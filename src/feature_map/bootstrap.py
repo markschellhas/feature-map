@@ -13,29 +13,19 @@ LEGACY_AGENTS_MARKERS = (
     ("<!-- featuremap:start -->", "<!-- featuremap:end -->"),
 )
 
-AGENTS_BLOCK = f"""{AGENTS_MARKER}
-## Feature Map
+SKILL_NAME = "feature-map"
 
-**ALWAYS** use Feature Map before feature work, debugging, PRDs, or plans.
-Do not implement from a cold grep when a map exists.
-
-```bash
-./bin/feature-map list
-./bin/feature-map search <keyword>
-./bin/feature-map find <path-fragment>
-./bin/feature-map <feature-name>
-```
-
-Maps in `.features/*.yaml` are the authoritative cross-app architecture source.
-Keep them dense: fields, not essays.
-
-If `list` is empty or search/find miss the area you are about to change,
-**scour the existing code and author maps first** (skill:
-`feature-map` → `references/existing-repos.md`). Cluster by user-visible
-capability, not by file. Prefer `entry_points` that exist on disk, then
-run `feature-map validate` and `feature-map check`.
-{AGENTS_END}
-"""
+# Repo-relative skill directories, keyed by the harness that reads them. This
+# table is a lookup, not a ranking: the primary deploy target is still chosen by
+# detect_skill_parent(). Every other entry is mirrored only when that harness is
+# already in use in this repo (its config directory exists), so no single agent
+# is privileged. Add a harness by adding a row; add an unlisted one per-repo via
+# `skill_dirs` in .feature-map.yaml or `--skill-dir`.
+SKILL_DIRS = {
+    "agents": ".agents/skills",
+    "claude": ".claude/skills",
+    "grok": ".grok/skills",
+}
 
 SHIM_SCRIPT = """#!/usr/bin/env bash
 set -euo pipefail
@@ -70,20 +60,106 @@ required_sections:
   - purpose
   - entry_points
 min_cli_version: "1.0.0"
+# Extra directories to mirror the agent skill into, for harnesses this CLI does
+# not know about. Repo-relative; each gets a <dir>/feature-map/ copy on init.
+# skill_dirs:
+#   - .my-agent/skills
 """
 
 
+def _display_path(repo_root: Path, path: Path) -> str:
+    """Repo-relative when possible, so AGENTS.md stays portable."""
+    try:
+        return path.relative_to(repo_root).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
+def agents_block(repo_root: Path = None, skill_paths=()) -> str:
+    """The AGENTS.md block, naming the deployed skill by path when known."""
+    lines = []
+    for path in skill_paths:
+        path = Path(path)
+        rel = _display_path(repo_root, path) if repo_root else path.as_posix()
+        lines.append(f"`{rel}/SKILL.md`")
+
+    if lines:
+        location = "Skill: " + ", ".join(lines) + "\n"
+    else:
+        location = f"Skill: `.agents/skills/{SKILL_NAME}/SKILL.md`\n"
+
+    return f"""{AGENTS_MARKER}
+## Feature Map
+
+**ALWAYS** use Feature Map before feature work, debugging, PRDs, or plans.
+Do not implement from a cold grep when a map exists.
+
+```bash
+./bin/feature-map list
+./bin/feature-map search <keyword>
+./bin/feature-map find <path-fragment>
+./bin/feature-map <feature-name>
+```
+
+Maps in `.features/*.yaml` are the authoritative cross-app architecture source.
+Keep them dense: fields, not essays.
+
+If `list` is empty or search/find miss the area you are about to change,
+**scour the existing code and author maps first**. Cluster by user-visible
+capability, not by file. Prefer `entry_points` that exist on disk, then
+run `feature-map validate` and `feature-map check`.
+
+{location}Read it before authoring: `references/existing-repos.md` (playbook),
+`references/authoring.md` (fields), `references/example-map.md` (worked example).
+{AGENTS_END}
+"""
+
+
+# Backward-compatible constant for callers that imported the static block.
+AGENTS_BLOCK = agents_block()
+
+
 def detect_skill_parent(repo_root: Path) -> Path:
-    agents = repo_root / ".agents" / "skills"
-    grok = repo_root / ".grok" / "skills"
+    agents = repo_root / SKILL_DIRS["agents"]
+    grok = repo_root / SKILL_DIRS["grok"]
     if grok.exists() and not agents.exists():
         return grok
     return agents
 
 
+def detect_mirror_parents(repo_root: Path, primary: Path, extra_dirs=()) -> list:
+    """Skill directories to mirror into, besides the primary one.
+
+    A known harness is mirrored only when it is already used in this repo (its
+    config directory exists) — that keeps init from seeding agent directories
+    nobody asked for. Directories named explicitly (config `skill_dirs` or
+    --skill-dir) are always written.
+    """
+    seen = {primary.resolve()}
+    targets = []
+
+    def add(path: Path):
+        resolved = path.resolve()
+        if resolved in seen:
+            return
+        seen.add(resolved)
+        targets.append(path)
+
+    for relative in SKILL_DIRS.values():
+        parent = repo_root / relative
+        # `.claude`, `.grok`, `.agents` — evidence the harness is used here.
+        if parent.parent.is_dir():
+            add(parent)
+
+    for relative in extra_dirs or ():
+        add(repo_root / str(relative))
+
+    return targets
+
+
 def copy_skill(dest_parent: Path, force: bool = False) -> Path:
     source = bundled_skill_dir()
-    dest = dest_parent / "feature-map"
+    dest = dest_parent / SKILL_NAME
     dest.mkdir(parents=True, exist_ok=True)
 
     if not source.is_dir():
@@ -135,9 +211,9 @@ def _replace_marked_block(text: str, block: str):
     return None
 
 
-def append_agents_snippet(repo_root: Path) -> Path:
+def append_agents_snippet(repo_root: Path, skill_paths=()) -> Path:
     target = repo_root / "AGENTS.md"
-    block = AGENTS_BLOCK.strip() + "\n"
+    block = agents_block(repo_root, skill_paths).strip() + "\n"
     if target.exists():
         text = target.read_text(encoding="utf-8")
         replaced = _replace_marked_block(text, block)
@@ -169,21 +245,32 @@ def bootstrap_repo(
     agents: bool = True,
     shim: bool = True,
     force: bool = False,
+    skill_dirs=(),
 ) -> dict:
     features_dir = ensure_features_dir(repo_root)
     skill_parent = detect_skill_parent(repo_root)
-    skill_path = copy_skill(skill_parent, force=upgrade_skill or force)
+    refresh = upgrade_skill or force
+    skill_path = copy_skill(skill_parent, force=refresh)
+
+    mirrors = [
+        copy_skill(parent, force=refresh)
+        for parent in detect_mirror_parents(repo_root, skill_parent, skill_dirs)
+    ]
+
     config_path = write_config(repo_root, force=False)
     shim_path = write_shim(repo_root, force=force) if shim else None
-    agents_path = append_agents_snippet(repo_root) if agents else None
+    agents_path = (
+        append_agents_snippet(repo_root, [skill_path] + mirrors) if agents else None
+    )
 
     return {
         "ok": True,
         "repo_root": str(repo_root),
         "features_dir": str(features_dir),
         "skill": str(skill_path),
+        "skill_mirrors": [str(path) for path in mirrors],
         "config": str(config_path),
         "shim": str(shim_path) if shim_path else None,
         "agents": str(agents_path) if agents_path else None,
-        "upgraded_skill": bool(upgrade_skill or force),
+        "upgraded_skill": bool(refresh),
     }

@@ -32,3 +32,11 @@ def template_path() -> Path:
 
 def skill_dir() -> Path:
     return assets_root() / "skill"
+
+
+def guide_path() -> Path:
+    """Packaged GUIDE.md (wheel), falling back to the source checkout copy."""
+    bundled = assets_root() / "GUIDE.md"
+    if bundled.is_file():
+        return bundled
+    return package_dir().parent.parent / "GUIDE.md"

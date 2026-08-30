@@ -128,6 +128,15 @@ def build_parser():
         help="Refresh the agent skill from this package version",
     )
     init_parser.add_argument(
+        "--skill-dir",
+        dest="skill_dirs",
+        metavar="DIR",
+        action="append",
+        default=[],
+        help="Extra repo-relative directory to mirror the agent skill into "
+        "(repeatable; for harnesses not in the known set)",
+    )
+    init_parser.add_argument(
         "--no-agents",
         dest="agents",
         action="store_false",
@@ -236,6 +245,8 @@ def dispatch(args):
             as_json=as_json,
             yes=args.yes,
             harness=args.harness,
+            skill_dirs=list(config.get("skill_dirs") or [])
+            + list(getattr(args, "skill_dirs", None) or []),
         )
 
     parser = build_parser()

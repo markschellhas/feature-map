@@ -24,13 +24,14 @@ Do not skip this and "just grep". Author maps first, then implement.
    `entry_points`.
 4. **Scaffold + fill** — `feature-map init <slug>`, then replace
    placeholders with real paths and a one-sentence `purpose` you
-   verified in code (`authoring.md`, Density).
+   verified in code (`authoring.md`, Density). `example-map.md` is a
+   finished map to copy the shape from.
 5. **Verify** — `feature-map validate` and `feature-map check`. Prefer
    paths that exist on disk. Record uncertainty in `notes`.
 6. **Stop the first pass** when every listed app appears on at least one
    map and the README's product nouns `search` successfully.
 
-Full narrative: the package `GUIDE.md` §3.4 (existing repos).
+Full narrative: the packaged `GUIDE.md` (path: `feature-map install --json` → `.guide.path`), §3.4 (existing repos).
 
 ## Anti-patterns
 

@@ -5,6 +5,7 @@ import yaml
 DEFAULT_APPS = []
 DEFAULT_REQUIRED_SECTIONS = ["purpose", "entry_points"]
 DEFAULT_FEATURES_DIR = ".features"
+DEFAULT_SKILL_DIRS = []
 
 
 def load_config(repo_root: Path) -> dict:
@@ -13,6 +14,7 @@ def load_config(repo_root: Path) -> dict:
         "features_dir": DEFAULT_FEATURES_DIR,
         "apps": list(DEFAULT_APPS),
         "required_sections": list(DEFAULT_REQUIRED_SECTIONS),
+        "skill_dirs": list(DEFAULT_SKILL_DIRS),
     }
     if config_path.is_file():
         with config_path.open(encoding="utf-8") as handle:
@@ -21,4 +23,6 @@ def load_config(repo_root: Path) -> dict:
             config.update(loaded)
     if not isinstance(config.get("apps"), list):
         config["apps"] = list(DEFAULT_APPS)
+    if not isinstance(config.get("skill_dirs"), list):
+        config["skill_dirs"] = list(DEFAULT_SKILL_DIRS)
     return config

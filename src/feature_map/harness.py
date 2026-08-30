@@ -14,7 +14,8 @@ HARNESSES = ["claude", "cursor-agent", "opencode", "grok", "codex", "gemini", "p
 
 PROMPT_TEMPLATE = (
     "Feature Map has been initialized in this repository. Read the skill at "
-    "{skill} and follow its references/existing-repos.md playbook: scour the "
+    "{skill} and follow its references/existing-repos.md playbook (with "
+    "references/example-map.md as the shape to copy): scour the "
     "repository, cluster user-visible capabilities, and author feature maps in "
     ".features/ — scaffold each with './bin/feature-map init <slug>', fill real "
     "paths from the code, then run './bin/feature-map validate' and "
