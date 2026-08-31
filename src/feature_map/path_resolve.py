@@ -10,9 +10,18 @@ def resolve_candidate_paths(path_str: str, repo_root: Path, apps: Iterable[str])
     apps = [app for app in apps if isinstance(app, str) and app]
     candidates: List[Path] = []
     seen = set()
+    try:
+        root_resolved = repo_root.resolve()
+    except (OSError, RuntimeError):
+        root_resolved = repo_root
 
     def add(candidate: Path):
-        key = str(candidate)
+        try:
+            resolved = candidate.resolve()
+            resolved.relative_to(root_resolved)
+        except (ValueError, OSError, RuntimeError):
+            return
+        key = str(resolved)
         if key not in seen:
             seen.add(key)
             candidates.append(candidate)

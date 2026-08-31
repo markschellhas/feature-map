@@ -4,8 +4,10 @@ from typing import Iterable, List, Optional
 
 import yaml
 
+from feature_map.loader import list_map_files
 from feature_map.path_normalize import normalize_path_candidate
 from feature_map.path_resolve import resolve_candidate_paths
+from feature_map.yamlutil import read_text_bounded, read_yaml_file, safe_load
 
 __all__ = [
     "normalize_path_candidate",
@@ -79,10 +81,13 @@ def _text_scan_section_strings(text: str, section: str) -> List[str]:
 def collect_corpus_strings(features_dir: Path) -> List[tuple]:
     """Return (feature_slug, raw_string) pairs from entry_points + core_components."""
     corpus: List[tuple] = []
-    for map_path in sorted(features_dir.glob("*.yaml")):
-        text = map_path.read_text(encoding="utf-8")
+    for map_path in list_map_files(features_dir):
         try:
-            data = yaml.safe_load(text) or {}
+            text = read_text_bounded(map_path)
+        except (OSError, UnicodeDecodeError, yaml.YAMLError):
+            continue
+        try:
+            data = safe_load(text) or {}
             if isinstance(data, dict):
                 for section in ("entry_points", "core_components"):
                     section_data = data.get(section)
@@ -116,10 +121,10 @@ def _flatten_strings(value) -> List[str]:
 
 def check_paths(features_dir: Path, repo_root: Path, apps: List[str]) -> List[dict]:
     issues = []
-    for map_path in sorted(features_dir.glob("*.yaml")):
+    for map_path in list_map_files(features_dir):
         try:
-            data = yaml.safe_load(map_path.read_text(encoding="utf-8")) or {}
-        except yaml.YAMLError:
+            data = read_yaml_file(map_path) or {}
+        except (yaml.YAMLError, OSError, UnicodeDecodeError):
             continue
         if not isinstance(data, dict):
             continue

@@ -1,9 +1,11 @@
+import re
 from pathlib import Path
 from typing import Dict, List, Optional, Set
 
 import yaml
 
 from feature_map.loader import extract_related_slug, list_map_files
+from feature_map.yamlutil import read_yaml_file
 
 
 def build_graph(features_dir: Path) -> Dict[str, List[str]]:
@@ -12,8 +14,8 @@ def build_graph(features_dir: Path) -> Dict[str, List[str]]:
         slug = path.stem
         graph.setdefault(slug, [])
         try:
-            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-        except yaml.YAMLError:
+            data = read_yaml_file(path) or {}
+        except (yaml.YAMLError, OSError, UnicodeDecodeError):
             continue
         related = data.get("related_features") or []
         if not isinstance(related, list):
@@ -64,16 +66,28 @@ def graph_data(
     }
 
 
+def _graph_id(name: str) -> str:
+    """Keep mermaid/dot node ids from becoming extra graph syntax."""
+    cleaned = re.sub(r"[^A-Za-z0-9_]", "_", str(name))
+    if not cleaned:
+        cleaned = "node"
+    if cleaned[0].isdigit():
+        cleaned = "n_" + cleaned
+    return cleaned
+
+
 def format_mermaid(data: dict) -> str:
     lines = ["graph LR"]
     for edge in data.get("edges", []):
-        lines.append(f"  {edge['from']} --> {edge['to']}")
+        lines.append(f"  {_graph_id(edge['from'])} --> {_graph_id(edge['to'])}")
     return "\n".join(lines) + "\n"
 
 
 def format_dot(data: dict) -> str:
     lines = ["digraph feature_map {"]
     for edge in data.get("edges", []):
-        lines.append(f'  "{edge["from"]}" -> "{edge["to"]}";')
+        src = str(edge["from"]).replace("\\", "\\\\").replace('"', '\\"')
+        dst = str(edge["to"]).replace("\\", "\\\\").replace('"', '\\"')
+        lines.append(f'  "{src}" -> "{dst}";')
     lines.append("}")
     return "\n".join(lines) + "\n"

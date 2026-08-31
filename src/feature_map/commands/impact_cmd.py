@@ -1,7 +1,10 @@
 from pathlib import Path
 
+import yaml
+
 from feature_map.graph import build_graph
 from feature_map.loader import list_map_files
+from feature_map.yamlutil import read_text_bounded
 
 
 def run_impact(
@@ -14,7 +17,10 @@ def run_impact(
     direct = []
 
     for path in list_map_files(features_dir):
-        text = path.read_text(encoding="utf-8")
+        try:
+            text = read_text_bounded(path)
+        except (OSError, UnicodeDecodeError, yaml.YAMLError):
+            continue
         if fragment_lower in text.lower():
             direct.append(path.stem)
 

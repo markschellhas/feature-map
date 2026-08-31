@@ -1,6 +1,9 @@
 from pathlib import Path
 
+import yaml
+
 from feature_map.loader import list_map_files
+from feature_map.yamlutil import read_text_bounded
 
 
 def run_find(features_dir: Path, fragment: str, as_json: bool = False):
@@ -9,7 +12,11 @@ def run_find(features_dir: Path, fragment: str, as_json: bool = False):
 
     for path in list_map_files(features_dir):
         matches = []
-        for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        try:
+            text = read_text_bounded(path)
+        except (OSError, UnicodeDecodeError, yaml.YAMLError):
+            continue
+        for line_no, line in enumerate(text.splitlines(), 1):
             if fragment_lower in line.lower():
                 matches.append({"line": line_no, "text": line.strip()})
         if matches:

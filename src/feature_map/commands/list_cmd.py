@@ -2,6 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from feature_map.loader import list_map_files
+from feature_map.yamlutil import read_yaml_file
 
 
 def run_list(features_dir: Path, as_json: bool = False):
@@ -14,10 +15,8 @@ def run_list(features_dir: Path, as_json: bool = False):
             mtime = datetime.fromtimestamp(path.stat().st_mtime).isoformat()
             apps_count = 0
             try:
-                import yaml as yaml_lib
-
-                data = yaml_lib.safe_load(path.read_text(encoding="utf-8")) or {}
-                apps = data.get("apps")
+                data = read_yaml_file(path) or {}
+                apps = data.get("apps") if isinstance(data, dict) else None
                 if isinstance(apps, list):
                     apps_count = len(apps)
                 elif isinstance(apps, dict):

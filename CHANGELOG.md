@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- `init <name>` rejects slugs that are not a single `[a-z0-9_]` segment, so
+  `../` and absolute paths cannot write YAML outside `.features/`.
+- `--skill-dir`, `skill_dirs:`, and `features_dir:` are confined to the
+  repository (no absolute paths, no `..`, no symlink escape).
+- `show` / map lookup no longer joins the user-supplied name onto the
+  filesystem; lookup is by globbed stems only.
+- `check` ignores path candidates that resolve outside the repo, so maps
+  cannot probe `/etc/passwd` and similar.
+- YAML loading rejects aliases and caps size/depth, so a hostile map cannot
+  hang the CLI with a recursive alias.
+- Registry lookups for `update` require HTTPS, cap response size, and refuse
+  HTTP redirects.
+- npm publish runs only on `v*` tags (not untagged `workflow_dispatch`).
+- CI/publish workflows now request `contents: read` by default.
+
 ## [1.1.0] — 2026-08-30
 
 ### Added

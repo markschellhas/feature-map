@@ -7,6 +7,7 @@ import yaml
 
 from feature_map.loader import extract_related_slug, normalize_slug
 from feature_map.paths import schema_path
+from feature_map.yamlutil import read_text_bounded, safe_load
 
 REQUIRED_KEYS = ["feature_name", "purpose", "entry_points"]
 RECOMMENDED_KEYS = ["apps", "user_flow", "related_features"]
@@ -79,11 +80,15 @@ def validate_map_file(
 ) -> Tuple[List[str], List[str]]:
     errors: List[str] = []
     warnings: List[str] = []
-    text = path.read_text(encoding="utf-8")
     data = None
+    try:
+        text = read_text_bounded(path)
+    except (OSError, UnicodeDecodeError, yaml.YAMLError) as exc:
+        errors.append(f"{path.name}: YAML parse error: {exc}")
+        return errors, warnings
 
     try:
-        data = yaml.safe_load(text)
+        data = safe_load(text)
     except yaml.YAMLError as exc:
         parse_error = str(exc)
         if strict:

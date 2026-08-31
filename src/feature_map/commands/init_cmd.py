@@ -3,14 +3,12 @@ from pathlib import Path
 from feature_map.bootstrap import bootstrap_repo, ensure_features_dir
 from feature_map.errors import CliError
 from feature_map.harness import offer_authoring
-from feature_map.loader import normalize_slug
+from feature_map.loader import parse_slug
 from feature_map.paths import template_path
 
 
 def run_init_map(features_dir: Path, name: str, force: bool = False, as_json: bool = False):
-    slug = normalize_slug(name)
-    if not slug:
-        raise CliError(f'Invalid feature name "{name}".')
+    slug = parse_slug(name)
 
     features_dir.mkdir(parents=True, exist_ok=True)
     target = features_dir / f"{slug}.yaml"

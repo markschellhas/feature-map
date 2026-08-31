@@ -18,6 +18,7 @@ BREW_FORMULA = "markschellhas/tap/feature-map"
 PYPI_JSON_URL = "https://pypi.org/pypi/feature-map-cli/json"
 NPM_JSON_URL = "https://registry.npmjs.org/feature-map-cli/latest"
 SKILL_HINT = "In each repo that uses Feature Map, run: feature-map init --upgrade-skill"
+MAX_REGISTRY_BYTES = 1_000_000
 
 
 @dataclass
@@ -197,6 +198,8 @@ def detect_installer(
 
 
 def _urlopen(url: str, timeout=15):
+    if not url.startswith("https://"):
+        raise CliError("Refusing non-HTTPS registry URL.")
     request = urllib.request.Request(
         url,
         headers={"User-Agent": "feature-map-cli/" + __version__},
@@ -207,8 +210,24 @@ def _urlopen(url: str, timeout=15):
 def _http_json(url, urlopen_fn):
     try:
         with urlopen_fn(url) as response:
-            return json.load(response)
-    except (urllib.error.URLError, OSError, json.JSONDecodeError, TimeoutError, ValueError) as exc:
+            final = getattr(response, "geturl", lambda: url)()
+            if final and not str(final).startswith("https://"):
+                raise CliError("Registry redirected to a non-HTTPS URL.")
+            raw = response.read(MAX_REGISTRY_BYTES + 1)
+    except CliError:
+        raise
+    except (urllib.error.URLError, OSError, TimeoutError, ValueError) as exc:
+        raise CliError(
+            "Could not look up the latest version: {0}".format(exc),
+            suggestion="Check your network and try again.",
+        )
+    if len(raw) > MAX_REGISTRY_BYTES:
+        raise CliError("Registry response was too large.")
+    try:
+        if isinstance(raw, bytes):
+            return json.loads(raw.decode("utf-8"))
+        return json.loads(raw)
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
         raise CliError(
             "Could not look up the latest version: {0}".format(exc),
             suggestion="Check your network and try again.",

@@ -15,6 +15,7 @@ from feature_map.commands.search_cmd import run_search
 from feature_map.commands.show_cmd import run_show
 from feature_map.commands.stats_cmd import run_stats
 from feature_map.commands.validate_cmd import run_validate
+from feature_map.confine import resolve_within
 from feature_map.config import load_config
 from feature_map.discover import find_features_dir, find_repo_root
 from feature_map.errors import CliError, FeaturesNotFoundError
@@ -178,6 +179,7 @@ def resolve_context(optional=False):
             features_dir = repo_root / config.get("features_dir", ".features")
         else:
             raise
+    features_dir = resolve_within(repo_root, features_dir)
     return features_dir, repo_root, config
 
 

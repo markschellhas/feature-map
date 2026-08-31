@@ -5,6 +5,8 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
+from feature_map.confine import resolve_within
+from feature_map.errors import CliError
 from feature_map.paths import skill_dir as bundled_skill_dir
 
 AGENTS_MARKER = "<!-- feature-map:start -->"
@@ -139,7 +141,7 @@ def detect_mirror_parents(repo_root: Path, primary: Path, extra_dirs=()) -> list
     targets = []
 
     def add(path: Path):
-        resolved = path.resolve()
+        resolved = resolve_within(repo_root, path)
         if resolved in seen:
             return
         seen.add(resolved)
@@ -157,10 +159,12 @@ def detect_mirror_parents(repo_root: Path, primary: Path, extra_dirs=()) -> list
     return targets
 
 
-def copy_skill(dest_parent: Path, force: bool = False) -> Path:
+def copy_skill(dest_parent: Path, force: bool = False, repo_root: Path = None) -> Path:
     source = bundled_skill_dir()
     dest = dest_parent / SKILL_NAME
     dest.mkdir(parents=True, exist_ok=True)
+    if repo_root is not None:
+        resolve_within(repo_root, dest)
 
     if not source.is_dir():
         raise FileNotFoundError(f"Bundled skill not found at {source}")
@@ -169,7 +173,11 @@ def copy_skill(dest_parent: Path, force: bool = False) -> Path:
         if not path.is_file():
             continue
         relative = path.relative_to(source)
+        if ".." in relative.parts:
+            continue
         target = dest / relative
+        if repo_root is not None:
+            resolve_within(repo_root, target)
         if target.exists() and not force:
             continue
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -230,8 +238,15 @@ def append_agents_snippet(repo_root: Path, skill_paths=()) -> Path:
 
 
 def ensure_features_dir(repo_root: Path, features_dir_name: str = ".features") -> Path:
+    name = Path(features_dir_name)
+    if name.is_absolute() or ".." in name.parts:
+        raise CliError(
+            "features_dir must be a relative path inside the repository.",
+            suggestion='Use ".features".',
+        )
     features_dir = repo_root / features_dir_name
     features_dir.mkdir(parents=True, exist_ok=True)
+    resolve_within(repo_root, features_dir)
     gitkeep = features_dir / ".gitkeep"
     if not any(features_dir.glob("*.yaml")) and not gitkeep.exists():
         gitkeep.write_text("", encoding="utf-8")
@@ -250,10 +265,10 @@ def bootstrap_repo(
     features_dir = ensure_features_dir(repo_root)
     skill_parent = detect_skill_parent(repo_root)
     refresh = upgrade_skill or force
-    skill_path = copy_skill(skill_parent, force=refresh)
+    skill_path = copy_skill(skill_parent, force=refresh, repo_root=repo_root)
 
     mirrors = [
-        copy_skill(parent, force=refresh)
+        copy_skill(parent, force=refresh, repo_root=repo_root)
         for parent in detect_mirror_parents(repo_root, skill_parent, skill_dirs)
     ]
 

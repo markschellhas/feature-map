@@ -4,6 +4,7 @@ from typing import Dict, List
 import yaml
 
 from feature_map.loader import list_map_files
+from feature_map.yamlutil import read_text_bounded, safe_load
 
 
 def _flatten(value, prefix="") -> List[str]:
@@ -22,10 +23,13 @@ def _flatten(value, prefix="") -> List[str]:
 def build_text_index(features_dir: Path) -> Dict[str, str]:
     index = {}
     for path in list_map_files(features_dir):
-        text = path.read_text(encoding="utf-8")
+        try:
+            text = read_text_bounded(path)
+        except (OSError, UnicodeDecodeError, yaml.YAMLError):
+            continue
         index[path.stem] = text
         try:
-            data = yaml.safe_load(text) or {}
+            data = safe_load(text) or {}
             if isinstance(data, dict):
                 index[path.stem] = "\n".join(_flatten(data))
         except yaml.YAMLError:

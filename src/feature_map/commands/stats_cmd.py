@@ -7,6 +7,7 @@ import yaml
 
 from feature_map.loader import all_slugs, extract_related_slug, list_map_files
 from feature_map.validate import RECOMMENDED_KEYS, REQUIRED_KEYS
+from feature_map.yamlutil import read_yaml_file
 
 
 def normalize_app_name(app) -> Optional[str]:
@@ -30,8 +31,8 @@ def run_stats(features_dir: Path, as_json: bool = False):
 
     for path in list_map_files(features_dir):
         try:
-            data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-        except yaml.YAMLError:
+            data = read_yaml_file(path) or {}
+        except (yaml.YAMLError, OSError, UnicodeDecodeError):
             parse_failures += 1
             missing_sections += len(REQUIRED_KEYS) + len(RECOMMENDED_KEYS)
             continue
