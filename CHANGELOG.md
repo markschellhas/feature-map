@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `feature-map viewer` opens a local, read-only browser view of `.features/*.yaml`.
+  `--no-open` / `--json` print a loopback URL without spawning a browser.
+  The page is served from memory on `127.0.0.1` and is not written into the
+  consumer repo.
+
 ### Security
 
 - `init <name>` rejects slugs that are not a single `[a-z0-9_]` segment, so

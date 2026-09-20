@@ -34,6 +34,9 @@ feature-map <feature-name>      # or: show <feature-name>
 feature-map graph <feature>     # cross-cutting dependencies
 ```
 
+Humans may run `feature-map viewer` for a local read-only page. Agents must
+keep using `list` / `show --section` / `--json` and must not open a browser.
+
 `./bin/feature-map` is a repo-local shim for the same CLI (created by `feature-map init`).
 
 Use `show <name> --section entry_points` (or `purpose`, `user_flow`, etc.) to limit token use on large maps.

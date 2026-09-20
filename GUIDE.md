@@ -134,7 +134,9 @@ features get one map, not one map per app. `related_features` is how
 
 ### What we did *not* build
 
-- No web UI or database of maps
+- No stored web UI, wiki export, or database of maps. `feature-map viewer`
+  may open a local, ephemeral, read-only page; it must not write HTML into
+  the consumer repo (not `.features/`, not `docs/`)
 - No auto-generator that invents maps from the AST (maps stay authored;
   agents may draft them after reading the code — see §3)
 - No coupling to Rails, Flutter, or Taptics runtime
