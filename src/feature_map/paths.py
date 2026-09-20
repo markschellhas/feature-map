@@ -40,3 +40,7 @@ def guide_path() -> Path:
     if bundled.is_file():
         return bundled
     return package_dir().parent.parent / "GUIDE.md"
+
+
+def view_template_path() -> Path:
+    return assets_root() / "view" / "index.html"

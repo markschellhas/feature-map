@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Feature Map Viewer</title>
+  <style>
+    :root {
+      --bg: #f3f1ec;
+      --surface: #fffcf8;
+      --text: #1b1814;
+      --muted: #5a554d;
+      --border: #d4cec4;
+      --accent: #1e4a78;
+      --stale: #8a2424;
+      --radius: 6px;
+      --sidebar: 17rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #151311;
+        --surface: #1d1a17;
+        --text: #f1ece5;
+        --muted: #b6aea3;
+        --border: #3c3832;
+        --accent: #8fb3dc;
+        --stale: #e08b8b;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    a.skip {
+      position: absolute;
+      left: -999px;
+      top: 0;
+    }
+
+    a.skip:focus {
+      left: 0.75rem;
+      top: 0.75rem;
+      z-index: 2;
+      background: var(--surface);
+      color: var(--text);
+      padding: 0.35rem 0.6rem;
+      border: 1px solid var(--border);
+    }
+
+    #layout {
+      display: grid;
+      grid-template-columns: var(--sidebar) 1fr;
+      min-height: 100vh;
+    }
+
+    #sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 1.25rem 1rem 2rem;
+    }
+
+    #main {
+      padding: 1.5rem 1.75rem 2.5rem;
+      max-width: 52rem;
+    }
+
+    h1 {
+      font-size: 1.15rem;
+      font-weight: 650;
+      margin: 0 0 1rem;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 650;
+      margin: 0 0 0.35rem;
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 650;
+      margin: 1.35rem 0 0.45rem;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    #empty {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    #slug-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+
+    .slug-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 0.5rem 0.6rem;
+    }
+
+    .slug-btn .slug {
+      display: block;
+      font-weight: 600;
+    }
+
+    .slug-btn .purpose {
+      display: block;
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    .slug-btn:hover {
+      border-color: var(--border);
+    }
+
+    .slug-btn[aria-current="true"] {
+      background: var(--bg);
+      border-color: var(--border);
+    }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .fields {
+      margin: 0;
+    }
+
+    .fields > div {
+      margin: 0 0 0.85rem;
+    }
+
+    .fields dt {
+      font-weight: 650;
+      margin: 0 0 0.2rem;
+    }
+
+    .fields dd {
+      margin: 0;
+    }
+
+    ul, ol {
+      margin: 0.15rem 0 0;
+      padding-left: 1.2rem;
+    }
+
+    .stale {
+      color: var(--stale);
+    }
+
+    .related {
+      padding: 0;
+      border-bottom: 1px solid var(--accent);
+      border-radius: 0;
+      color: var(--accent);
+    }
+
+    .related:hover {
+      border-bottom-color: currentColor;
+    }
+
+    #graph-nodes, #graph-edges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0;
+      list-style: none;
+    }
+
+    .node-btn, .edge {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 0.25rem 0.55rem;
+    }
+
+    .edge {
+      cursor: default;
+    }
+
+    pre.mermaid-source {
+      overflow: auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 0.9rem;
+      font-size: 0.875rem;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 720px) {
+      #layout {
+        grid-template-columns: 1fr;
+      }
+
+      #sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      #main {
+        padding: 1.15rem 1rem 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to map</a>
+  <div id="layout">
+    <aside id="sidebar">
+      <h1>Feature Map Viewer</h1>
+      <nav id="slug-list" aria-label="Feature maps"></nav>
+    </aside>
+    <main id="main">
+      <p id="empty" hidden>No feature maps found in .features/.</p>
+      <article id="detail" hidden>
+        <h2 id="feature-heading" tabindex="-1"></h2>
+        <p id="feature-slug" class="muted"></p>
+        <dl id="fields" class="fields"></dl>
+      </article>
+      <section id="graph-panel" hidden>
+        <h2>Graph</h2>
+        <h3>Nodes</h3>
+        <ul id="graph-nodes"></ul>
+        <h3>Edges</h3>
+        <ul id="graph-edges"></ul>
+        <h3>Mermaid source</h3>
+        <pre id="mermaid" class="mermaid-source"></pre>
+      </section>
+    </main>
+  </div>
+  <script>
+    window.FEATURE_MAP = __VIEW_SNAPSHOT_JSON__;</script>
+  <script>
+    (function () {
+      var data = window.FEATURE_MAP || {};
+      var emptyEl = document.getElementById("empty");
+      var detailEl = document.getElementById("detail");
+      var graphPanel = document.getElementById("graph-panel");
+      var slugList = document.getElementById("slug-list");
+      var heading = document.getElementById("feature-heading");
+      var slugLine = document.getElementById("feature-slug");
+      var fieldsEl = document.getElementById("fields");
+      var nodesEl = document.getElementById("graph-nodes");
+      var edgesEl = document.getElementById("graph-edges");
+      var mermaidEl = document.getElementById("mermaid");
+
+      function maps() {
+        return data.maps || {};
+      }
+
+      function relatedSlug(entry) {
+        if (typeof entry !== "string") return "";
+        var match = entry.trim().match(/^["']?([a-zA-Z0-9_-]+)/);
+        if (!match) return "";
+        return match[1].toLowerCase().replace(/ /g, "_").replace(/-/g, "_");
+      }
+
+      function labelFor(key) {
+        return String(key).replace(/_/g, " ");
+      }
+
+      function isStale(map, path) {
+        var stale = map && map.stale_paths ? map.stale_paths : [];
+        var i;
+        for (i = 0; i < stale.length; i += 1) {
+          if (stale[i] === path) return true;
+        }
+        return false;
+      }
+
+      function appendTextValue(parent, value) {
+        var node = document.createElement("span");
+        node.textContent = value == null ? "" : String(value);
+        parent.appendChild(node);
+      }
+
+      function appendObject(parent, obj) {
+        var dl = document.createElement("dl");
+        Object.keys(obj).forEach(function (key) {
+          var dt = document.createElement("dt");
+          dt.textContent = labelFor(key);
+          var dd = document.createElement("dd");
+          appendValue(dd, key, obj[key], null);
+          dl.appendChild(dt);
+          dl.appendChild(dd);
+        });
+        parent.appendChild(dl);
+      }
+
+      function appendList(parent, key, items, map) {
+        var ul = document.createElement("ul");
+        items.forEach(function (item) {
+          var li = document.createElement("li");
+          if (key === "entry_points" && typeof item === "string") {
+            li.textContent = item;
+            if (isStale(map, item)) li.className = "stale";
+          } else if (key === "related_features") {
+            var slug = relatedSlug(item);
+            if (slug && maps()[slug]) {
+              var btn = document.createElement("button");
+              btn.type = "button";
+              btn.className = "related";
+              btn.textContent = String(item);
+              btn.addEventListener("click", function () {
+                select(slug);
+              });
+              li.appendChild(btn);
+            } else {
+              li.textContent = item == null ? "" : String(item);
+            }
+          } else if (item !== null && typeof item === "object") {
+            appendValue(li, key, item, map);
+          } else {
+            li.textContent = item == null ? "" : String(item);
+          }
+          ul.appendChild(li);
+        });
+        parent.appendChild(ul);
+      }
+
+      function appendValue(parent, key, value, map) {
+        if (value == null) {
+          appendTextValue(parent, "");
+          return;
+        }
+        if (Array.isArray(value)) {
+          appendList(parent, key, value, map);
+          return;
+        }
+        if (typeof value === "object") {
+          appendObject(parent, value);
+          return;
+        }
+        appendTextValue(parent, value);
+      }
+
+      function renderSidebar() {
+        while (slugList.firstChild) slugList.removeChild(slugList.firstChild);
+        (data.slugs || []).forEach(function (slug) {
+          var map = maps()[slug] || {};
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "slug-btn";
+          btn.setAttribute("aria-current", slug === data.selected ? "true" : "false");
+          var name = document.createElement("span");
+          name.className = "slug";
+          name.textContent = slug;
+          var purpose = document.createElement("span");
+          purpose.className = "purpose";
+          purpose.textContent = map.purpose || "";
+          btn.appendChild(name);
+          btn.appendChild(purpose);
+          btn.addEventListener("click", function () {
+            select(slug);
+          });
+          slugList.appendChild(btn);
+        });
+      }
+
+      function renderDetail(map) {
+        heading.textContent = map.feature_name || map.slug || "";
+        slugLine.textContent = map.slug || "";
+        while (fieldsEl.firstChild) fieldsEl.removeChild(fieldsEl.firstChild);
+        (map.fields || []).forEach(function (field) {
+          var wrap = document.createElement("div");
+          var dt = document.createElement("dt");
+          dt.textContent = labelFor(field.key);
+          var dd = document.createElement("dd");
+          appendValue(dd, field.key, field.value, map);
+          wrap.appendChild(dt);
+          wrap.appendChild(dd);
+          fieldsEl.appendChild(wrap);
+        });
+      }
+
+      function renderGraph() {
+        var graph = data.graph || {};
+        while (nodesEl.firstChild) nodesEl.removeChild(nodesEl.firstChild);
+        while (edgesEl.firstChild) edgesEl.removeChild(edgesEl.firstChild);
+        (graph.nodes || []).forEach(function (node) {
+          var li = document.createElement("li");
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "node-btn";
+          btn.textContent = node;
+          btn.addEventListener("click", function () {
+            select(node);
+          });
+          li.appendChild(btn);
+          nodesEl.appendChild(li);
+        });
+        (graph.edges || []).forEach(function (edge) {
+          var li = document.createElement("li");
+          li.className = "edge";
+          li.textContent = (edge.from || "") + " → " + (edge.to || "");
+          edgesEl.appendChild(li);
+        });
+        mermaidEl.textContent = graph.mermaid || "";
+      }
+
+      function render() {
+        var slugs = data.slugs || [];
+        if (!slugs.length) {
+          emptyEl.hidden = false;
+          detailEl.hidden = true;
+          graphPanel.hidden = true;
+          while (slugList.firstChild) slugList.removeChild(slugList.firstChild);
+          return;
+        }
+        emptyEl.hidden = true;
+        detailEl.hidden = false;
+        graphPanel.hidden = false;
+        renderSidebar();
+        var selected = data.selected && maps()[data.selected]
+          ? maps()[data.selected]
+          : maps()[slugs[0]];
+        if (selected) renderDetail(selected);
+        renderGraph();
+      }
+
+      function select(slug) {
+        if (!maps()[slug]) return;
+        data.selected = slug;
+        render();
+        heading.focus();
+      }
+
+      render();
+    })();
+  </script>
+</body>
+</html>
