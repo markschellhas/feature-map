@@ -45,7 +45,7 @@ def run_viewer(
         emit(payload, as_json=True)
     else:
         sys.stdout.write(session.url + "\n")
-        sys.stdout.flush()
+    sys.stdout.flush()
     if not no_open:
         opener = open_browser
         if opener is None:
