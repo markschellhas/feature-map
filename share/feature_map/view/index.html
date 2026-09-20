@@ -191,6 +191,8 @@
 
     .diagram-canvas.mermaid-diagram {
       margin: 0.4rem 0 0.15rem;
+      min-height: 0;
+      max-height: none;
     }
 
     .diagram-canvas svg {
@@ -459,7 +461,7 @@
         return Object.keys(groups).map(function (key) { return groups[key]; });
       }
 
-      function layoutGraph(graph) {
+      function layoutGraph(graph, compact) {
         var nodes = graph.nodes || [];
         var edges = graph.edges || [];
         var direction = graph.direction || "LR";
@@ -483,9 +485,9 @@
         });
 
         var placed = {};
-        var pad = 32;
-        var rankGap = 80;
-        var siblingGap = 28;
+        var pad = compact ? 20 : 32;
+        var rankGap = compact ? 56 : 80;
+        var siblingGap = compact ? 22 : 28;
         var cursorY = pad;
         var maxX = 0;
         var maxY = 0;
@@ -493,7 +495,7 @@
         connectedComponents(nodes, edges).forEach(function (ids) {
           var rank = {};
           var roots = ids.filter(function (id) { return incoming[id].length === 0; });
-          if (!roots.length) roots = ids.slice().sort();
+          if (!roots.length) roots = [ids.slice().sort()[0]];
           var queue = [];
           roots.forEach(function (id) {
             rank[id] = 0;
@@ -576,8 +578,8 @@
 
         return {
           placed: placed,
-          width: Math.max(maxX + pad, 320),
-          height: Math.max(maxY + pad, 180),
+          width: compact ? Math.max(maxX + pad, 1) : Math.max(maxX + pad, 320),
+          height: compact ? Math.max(maxY + pad, 1) : Math.max(maxY + pad, 220),
           vertical: vertical
         };
       }
@@ -607,7 +609,7 @@
           container.appendChild(empty);
           return;
         }
-        var layout = layoutGraph(graph);
+        var layout = layoutGraph(graph, options.compact);
         var svg = svgEl("svg", {
           viewBox: "0 0 " + layout.width + " " + layout.height,
           width: String(layout.width),
@@ -701,7 +703,7 @@
         canvas.className = "diagram-canvas mermaid-diagram";
         canvas.setAttribute("aria-label", "Mermaid diagram");
         parent.appendChild(canvas);
-        renderDiagram(canvas, parseMermaid(source), {});
+        renderDiagram(canvas, parseMermaid(source), { compact: true });
       }
 
       function appendTextValue(parent, value) {
