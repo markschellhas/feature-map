@@ -1,9 +1,9 @@
 # Feature Map — development, packaging, and adoption
 
 This is the operator's guide for `feature-map`: how it was built, how to
-publish it so anyone can install it, and how a developer (or an agent)
-adopts it in another repository — including existing codebases that do
-not yet have maps.
+develop from a checkout without publishing, how to publish it so anyone
+can install it, and how a developer (or an agent) adopts it in another
+repository — including existing codebases that do not yet have maps.
 
 ---
 
@@ -141,6 +141,67 @@ features get one map, not one map per app. `related_features` is how
   agents may draft them after reading the code — see §3)
 - No coupling to Rails, Flutter, or Taptics runtime
 
+### Local development (no publish)
+
+Published PyPI, npm, and Homebrew installs lag this tree. To run and
+dogfood unreleased changes, install this checkout editable so
+`feature-map` on PATH is the code you are editing.
+
+Use a virtualenv. System Python on many Linux distros is PEP 668
+(externally managed) and will refuse a global `pip install`.
+
+```bash
+cd /path/to/feature-map
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"     # same as `make install`
+python -m pytest -q         # same as `make test`
+feature-map --version
+feature-map --help
+```
+
+Edits under `src/feature_map/` take effect immediately — no rebuild, no
+republish. Tests inject `src` onto `PYTHONPATH`, so pytest does not need
+a wheel. `python -m feature_map` is the same entry as the console script
+(`feature_map.cli:main`).
+
+To try it against another repo, keep the venv activated and `cd` there:
+
+```bash
+cd /path/to/some-app
+feature-map init
+feature-map list
+feature-map viewer
+```
+
+Or point that other environment at this checkout:
+
+```bash
+pip install -e /path/to/feature-map
+```
+
+**Do not iterate via the published npm or Homebrew packages.**
+`npm install -g feature-map-cli` runs postinstall and `pip install`s the
+PyPI version into a local venv, so you would be testing the last
+release, not this tree. Same for `brew install`. `feature-map update`
+also refuses a source/editable checkout — that is expected.
+
+To test the **packaged** artifact (share files in the wheel, console
+script, version) without uploading:
+
+```bash
+python3 -m pip install -U build
+rm -rf dist
+python3 -m build
+pip install dist/feature_map_cli-*.whl
+feature-map --version
+python3 -c "import feature_map; print(feature_map.__version__)"
+```
+
+Uninstall with `pip uninstall -y feature-map-cli` when done, then return
+to `pip install -e ".[dev]"` for day-to-day work. Publishing that wheel
+is a separate step — `PUBLISH.md`.
+
 ---
 
 ## 2. How to package it so anybody can use it
@@ -226,6 +287,9 @@ The formula should leave `feature-map` on PATH and, when possible, install
 | Homebrew formula / CI for the tool | `bin/feature-map` shim (written by `init`) |
 
 ### 2.6 Verify a package before you publish
+
+Day-to-day work from this checkout is covered under **Local development
+(no publish)** above. Before a tag, from an editable install:
 
 ```bash
 cd feature-map
@@ -542,7 +606,7 @@ the installed package version. Re-run `feature-map init` to refresh the
 
 | File | Role |
 |------|------|
-| `README.md` | Short install + command list |
+| `README.md` | Short install, commands, and local develop |
 | `PUBLISH.md` | Submit to PyPI and Homebrew |
 | `EXTRACT.md` | Split this directory into its own GitHub repo |
 | `CHANGELOG.md` | Released CLI versions |

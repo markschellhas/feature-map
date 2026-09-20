@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Viewer sidebar search filters the map list by name, slug, or purpose.
+- README and GUIDE document working from a source checkout (editable
+  install, dogfood against another repo, wheel dry-run) without publishing
+  to PyPI.
 
 ### Changed
 

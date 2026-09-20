@@ -106,10 +106,38 @@ skill mirror targets for harnesses the CLI does not know about.
 
 ## Develop
 
+Published PyPI, npm, and Homebrew installs lag this tree. Work from a
+checkout with an **editable install** so `feature-map` on PATH is the code
+you are editing. Use a virtualenv (required on PEP 668 / Homebrew Python):
+
 ```bash
-pip install -e ".[dev]"
-python -m pytest -q
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"     # same as `make install`
+python -m pytest -q         # same as `make test`
+feature-map --version
 ```
+
+Edits under `src/feature_map/` take effect immediately. Dogfood against
+another repo by keeping the venv activated and `cd`-ing there, or from
+that repo: `pip install -e /path/to/feature-map`. `python -m feature_map`
+is the same CLI as the console script.
+
+Do not iterate via `npm install -g feature-map-cli` or `brew install`:
+those pull the last **published** PyPI version. `feature-map update`
+refuses a source/editable checkout on purpose.
+
+To test the packaged wheel without uploading:
+
+```bash
+python -m pip install -U build
+rm -rf dist && python -m build
+pip install dist/feature_map_cli-*.whl
+```
+
+Uninstall with `pip uninstall -y feature-map-cli`, then return to
+`pip install -e ".[dev]"`. Full notes: [GUIDE.md](GUIDE.md) (Local
+development).
 
 ## License
 
