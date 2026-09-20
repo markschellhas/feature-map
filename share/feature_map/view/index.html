@@ -101,6 +101,30 @@
       color: var(--muted);
     }
 
+    .sidebar-search-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 650;
+      color: var(--muted);
+      margin: 0 0 0.3rem;
+    }
+
+    #sidebar-search {
+      display: block;
+      width: 100%;
+      margin: 0 0 0.85rem;
+      padding: 0.4rem 0.55rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
+      color: var(--text);
+      font: inherit;
+    }
+
+    #sidebar-empty {
+      margin: 0.35rem 0 0;
+    }
+
     #slug-list {
       display: flex;
       flex-direction: column;
@@ -135,6 +159,7 @@
 
     button:focus-visible,
     a:focus-visible,
+    input:focus-visible,
     .graph-node:focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
@@ -264,7 +289,10 @@
   <div id="layout">
     <aside id="sidebar">
       <h1>Feature Map Viewer</h1>
+      <label class="sidebar-search-label" for="sidebar-search">Search maps</label>
+      <input id="sidebar-search" type="search" placeholder="Filter maps" autocomplete="off">
       <nav id="slug-list" aria-label="Feature maps"></nav>
+      <p id="sidebar-empty" class="muted" hidden>No matching maps.</p>
     </aside>
     <main id="main">
       <p id="empty" hidden>No feature maps found in .features/.</p>
@@ -290,6 +318,9 @@
       var detailEl = document.getElementById("detail");
       var graphPanel = document.getElementById("graph-panel");
       var slugList = document.getElementById("slug-list");
+      var searchEl = document.getElementById("sidebar-search");
+      var searchLabel = document.querySelector(".sidebar-search-label");
+      var sidebarEmpty = document.getElementById("sidebar-empty");
       var heading = document.getElementById("feature-heading");
       var slugLine = document.getElementById("feature-slug");
       var fieldsEl = document.getElementById("fields");
@@ -786,10 +817,27 @@
         appendTextValue(parent, value);
       }
 
+      function searchQuery() {
+        return (searchEl && searchEl.value || "").replace(/^\s+|\s+$/g, "").toLowerCase();
+      }
+
+      function matchesSearch(slug, map, q) {
+        if (!q) return true;
+        var name = (map.feature_name || "").toLowerCase();
+        var purpose = (map.purpose || "").toLowerCase();
+        return slug.toLowerCase().indexOf(q) !== -1
+          || name.indexOf(q) !== -1
+          || purpose.indexOf(q) !== -1;
+      }
+
       function renderSidebar() {
         while (slugList.firstChild) slugList.removeChild(slugList.firstChild);
+        var q = searchQuery();
+        var shown = 0;
         (data.slugs || []).forEach(function (slug) {
           var map = maps()[slug] || {};
+          if (!matchesSearch(slug, map, q)) return;
+          shown += 1;
           var btn = document.createElement("button");
           btn.type = "button";
           btn.className = "slug-btn";
@@ -800,6 +848,9 @@
           });
           slugList.appendChild(btn);
         });
+        if (sidebarEmpty) {
+          sidebarEmpty.hidden = shown > 0 || !(data.slugs || []).length;
+        }
       }
 
       function renderDetail(map) {
@@ -874,10 +925,13 @@
 
       function render() {
         var slugs = data.slugs || [];
+        if (searchEl) searchEl.hidden = !slugs.length;
+        if (searchLabel) searchLabel.hidden = !slugs.length;
         if (!slugs.length) {
           emptyEl.hidden = false;
           detailEl.hidden = true;
           graphPanel.hidden = true;
+          if (sidebarEmpty) sidebarEmpty.hidden = true;
           while (slugList.firstChild) slugList.removeChild(slugList.firstChild);
           return;
         }
@@ -897,6 +951,12 @@
         data.selected = slug;
         render();
         heading.focus();
+      }
+
+      if (searchEl) {
+        searchEl.addEventListener("input", function () {
+          renderSidebar();
+        });
       }
 
       render();

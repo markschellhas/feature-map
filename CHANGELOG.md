@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Viewer sidebar search filters the map list by name, slug, or purpose.
+
 ### Changed
 
 - Viewer sidebar lists each map's title only (`feature_name`), not the purpose
