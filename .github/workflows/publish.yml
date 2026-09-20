@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   test:
@@ -54,17 +55,17 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
-          registry-url: "https://registry.npmjs.org"
           package-manager-cache: false
       - run: node --check bin/feature-map.js && node --check scripts/postinstall.js && node --check scripts/python.js
-      # setup-node writes _authToken=${NODE_AUTH_TOKEN}; an empty token
-      # makes npm skip OIDC trusted publishing. Strip it so npm 11 can
-      # exchange the GitHub id-token instead.
+      # Do not pass registry-url to setup-node: it writes a dummy
+      # NODE_AUTH_TOKEN that makes npm skip OIDC trusted publishing.
       - name: Publish to npm
         run: |
-          npmrc="${NPM_CONFIG_USERCONFIG:-$HOME/.npmrc}"
-          if [ -f "$npmrc" ]; then
-            sed -i.bak '/_authToken/d' "$npmrc"
+          unset NODE_AUTH_TOKEN NPM_TOKEN
+          echo "oidc_url=${ACTIONS_ID_TOKEN_REQUEST_URL:+set}"
+          echo "oidc_tok=${ACTIONS_ID_TOKEN_REQUEST_TOKEN:+set}"
+          if [ -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ]; then
+            echo "GitHub did not expose an OIDC request URL (need id-token: write)"
+            exit 1
           fi
-          unset NODE_AUTH_TOKEN
-          npm publish --access public
+          npm publish --access public --loglevel verbose
