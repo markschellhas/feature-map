@@ -122,8 +122,9 @@ second app.
 - New subcommand `viewer` with no map argument: `feature-map viewer`.
 - Flags: `--no-open` (do not spawn a browser), existing global `--json` (emit
   `{ ok, url }` instead of opening quietly).
-- Browser UI: sidebar of slugs (purpose one-liner if present); main pane for
-  the selected map; related slugs and graph nodes navigate in-page.
+- Browser UI: sidebar of map titles only; main pane for the selected map;
+  related slugs and graph nodes navigate in-page. Related-feature graphs and
+  Mermaid render as diagrams on a canvas, not as source.
 - Empty `.features/`: open the shell page with an empty list and a short "no
   maps" message, not a crash.
 
