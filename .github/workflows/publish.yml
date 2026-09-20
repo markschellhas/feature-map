@@ -40,7 +40,7 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
 
   publish-npm:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: test
     runs-on: ubuntu-latest
     environment:
@@ -51,8 +51,20 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+          package-manager-cache: false
       - run: node --check bin/feature-map.js && node --check scripts/postinstall.js && node --check scripts/python.js
-      - run: npm publish --access public --provenance
+      # setup-node writes _authToken=${NODE_AUTH_TOKEN}; an empty token
+      # makes npm skip OIDC trusted publishing. Strip it so npm 11 can
+      # exchange the GitHub id-token instead.
+      - name: Publish to npm
+        run: |
+          npmrc="${NPM_CONFIG_USERCONFIG:-$HOME/.npmrc}"
+          if [ -f "$npmrc" ]; then
+            sed -i.bak '/_authToken/d' "$npmrc"
+          fi
+          unset NODE_AUTH_TOKEN
+          npm publish --access public
