@@ -97,6 +97,16 @@ class ViewRenderTests(FeaturemapTestCase):
         )
         self.assertIn("No feature maps", html)
 
+    def test_section_headers_are_capitalized_spaced_and_indented(self):
+        html, _snapshot, _repo = self._html()
+        self.assertIn("function labelFor(key)", html)
+        self.assertIn("ch.toUpperCase()", html)
+        self.assertIn("text-transform: uppercase", html)
+        self.assertIn("--section-gap", html)
+        self.assertIn("var(--indent)", html)
+        self.assertIn("nested-fields", html)
+        self.assertIn('wrap.className = "field field-"', html)
+
     def test_does_not_write_the_consumer_repo(self):
         html, _snapshot, repo = self._html()
         self.assertTrue(html)
