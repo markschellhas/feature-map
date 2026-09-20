@@ -15,6 +15,7 @@ from feature_map.commands.search_cmd import run_search
 from feature_map.commands.show_cmd import run_show
 from feature_map.commands.stats_cmd import run_stats
 from feature_map.commands.validate_cmd import run_validate
+from feature_map.commands.viewer_cmd import run_viewer
 from feature_map.confine import resolve_within
 from feature_map.config import load_config
 from feature_map.discover import find_features_dir, find_repo_root
@@ -35,6 +36,7 @@ COMMANDS = {
     "init",
     "install",
     "update",
+    "viewer",
 }
 
 OPTIONAL_FEATURES_COMMANDS = {"init", "install", "update"}
@@ -66,6 +68,23 @@ def build_parser():
         "update",
         help="Update this CLI via the package manager that installed it",
         description="Update this CLI via the package manager that installed it",
+    )
+
+    viewer_parser = subparsers.add_parser(
+        "viewer",
+        help="Serve a local HTML viewer for feature maps",
+    )
+    viewer_parser.add_argument(
+        "--no-open",
+        action="store_true",
+        help="Do not open a browser",
+    )
+    viewer_parser.add_argument(
+        "--timeout",
+        type=float,
+        default=0,
+        metavar="SECONDS",
+        help="Stop serving after SECONDS (0 means run until interrupt)",
     )
 
     show_parser = subparsers.add_parser("show", help="Show a feature map")
@@ -240,6 +259,17 @@ def dispatch(args):
 
     if command == "stats":
         return 0, run_stats(features_dir, as_json=as_json)
+
+    if command == "viewer":
+        timeout = getattr(args, "timeout", 0) or None
+        return 0, run_viewer(
+            features_dir,
+            repo_root,
+            config.get("apps", []),
+            as_json=as_json,
+            no_open=getattr(args, "no_open", False),
+            timeout=timeout,
+        )
 
     if command == "init":
         if getattr(args, "name", None):

@@ -149,5 +149,34 @@ class CheckConfineTests(unittest.TestCase):
         self.assertEqual(resolve_candidate_paths("../../etc/passwd", root, []), [])
 
 
+class ViewerSecurityTests(FeaturemapTestCase):
+    def test_server_does_not_bind_all_interfaces(self):
+        from feature_map.view_server import make_server
+
+        server = make_server("<html>x</html>")
+        self.addCleanup(server.server_close)
+        host, _port = server.server_address
+        self.assertEqual(host, "127.0.0.1")
+        self.assertNotEqual(host, "0.0.0.0")
+
+    def test_viewer_does_not_write_html_into_repo_or_features(self):
+        repo = self.copy_repo()
+        result = self.run_cli(
+            ["viewer", "--no-open", "--timeout", "0.5"],
+            cwd=repo,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(list(repo.rglob("*.html")), [])
+        self.assertEqual(list((repo / ".features").glob("*")), list((repo / ".features").glob("*.yaml")))
+        self.assertFalse((repo / "docs").exists())
+
+    def test_show_alias_unchanged_for_real_maps(self):
+        repo = self.copy_repo()
+        shown = self.run_cli(["auth"], cwd=repo)
+        self.assertEqual(shown.returncode, 0)
+        self.assertIn("purpose:", shown.stdout)
+        self.assertNotIn("http://127.0.0.1:", shown.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

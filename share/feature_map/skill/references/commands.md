@@ -10,6 +10,7 @@ Global flags: `--json`, `--version`
 |---------|-------------|
 | `list [--json]` | All feature slugs; JSON includes mtime and app count |
 | `show <name> [--section <key>] [--json]` | Full map or one top-level section |
+| `viewer [--no-open] [--timeout SECONDS] [--json]` | Local ephemeral browser view of all maps. Human command; agents keep using `show` |
 | `<name>` | Alias for `show <name>` |
 | `search <query> [--json]` | Full-text search across all maps |
 | `find <path-fragment> [--json]` | Reverse lookup by path string |
@@ -33,6 +34,7 @@ location and the packaged `GUIDE.md` path |
 feature-map list
 feature-map auth
 feature-map show auth --section entry_points
+feature-map viewer --no-open
 feature-map search billing
 feature-map find src/app.py
 feature-map graph auth --format mermaid

@@ -68,6 +68,7 @@ feature-map init --upgrade-skill
 |---------|---------|
 | `list` | All feature slugs |
 | `show <name>` / `<name>` | Print a map (or `--section`) |
+| `viewer [--no-open] [--timeout SECONDS]` | Local read-only browser view of all maps (does not write HTML into the repo) |
 | `search <query>` | Full-text search |
 | `find <path>` | Reverse lookup by path fragment |
 | `graph [name]` | `related_features` graph (`mermaid`, `json`, `dot`) |
