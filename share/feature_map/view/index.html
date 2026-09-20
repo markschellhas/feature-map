@@ -15,6 +15,7 @@
       --stale: #8a2424;
       --radius: 6px;
       --sidebar: 17rem;
+      --grid: rgba(27, 24, 20, 0.08);
     }
 
     @media (prefers-color-scheme: dark) {
@@ -26,6 +27,7 @@
         --border: #3c3832;
         --accent: #8fb3dc;
         --stale: #e08b8b;
+        --grid: rgba(241, 236, 229, 0.08);
       }
     }
 
@@ -69,7 +71,7 @@
 
     #main {
       padding: 1.5rem 1.75rem 2.5rem;
-      max-width: 52rem;
+      max-width: 64rem;
     }
 
     h1 {
@@ -102,7 +104,7 @@
     #slug-list {
       display: flex;
       flex-direction: column;
-      gap: 0.35rem;
+      gap: 0.2rem;
     }
 
     button {
@@ -118,18 +120,8 @@
       display: block;
       width: 100%;
       text-align: left;
-      padding: 0.5rem 0.6rem;
-    }
-
-    .slug-btn .slug {
-      display: block;
+      padding: 0.45rem 0.6rem;
       font-weight: 600;
-    }
-
-    .slug-btn .purpose {
-      display: block;
-      color: var(--muted);
-      font-size: 0.875rem;
     }
 
     .slug-btn:hover {
@@ -142,7 +134,8 @@
     }
 
     button:focus-visible,
-    a:focus-visible {
+    a:focus-visible,
+    .graph-node:focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
@@ -184,32 +177,68 @@
       border-bottom-color: currentColor;
     }
 
-    #graph-nodes, #graph-edges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      padding: 0;
-      list-style: none;
-    }
-
-    .node-btn, .edge {
+    .diagram-canvas {
+      position: relative;
+      overflow: auto;
+      background-color: var(--surface);
+      background-image: radial-gradient(var(--grid) 1px, transparent 1px);
+      background-size: 14px 14px;
       border: 1px solid var(--border);
-      background: var(--surface);
-      padding: 0.25rem 0.55rem;
+      border-radius: var(--radius);
+      min-height: 14rem;
+      max-height: 32rem;
     }
 
-    .edge {
+    .diagram-canvas.mermaid-diagram {
+      margin: 0.4rem 0 0.15rem;
+    }
+
+    .diagram-canvas svg {
+      display: block;
+    }
+
+    .graph-node {
+      cursor: pointer;
+    }
+
+    .graph-node.passive {
       cursor: default;
     }
 
-    pre.mermaid-source {
-      overflow: auto;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 0.75rem 0.9rem;
-      font-size: 0.875rem;
-      white-space: pre-wrap;
+    .graph-node rect {
+      fill: var(--bg);
+      stroke: var(--border);
+      stroke-width: 1.5;
+    }
+
+    .graph-node.selected rect {
+      fill: var(--surface);
+      stroke: var(--accent);
+      stroke-width: 2.25;
+    }
+
+    .graph-node.missing rect {
+      fill: var(--surface);
+      stroke-dasharray: 4 3;
+    }
+
+    .graph-node text {
+      fill: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      pointer-events: none;
+    }
+
+    .graph-edge {
+      fill: none;
+      stroke: var(--muted);
+      stroke-width: 1.6;
+    }
+
+    .diagram-empty {
+      margin: 0;
+      padding: 1.25rem;
+      color: var(--muted);
     }
 
     @media (max-width: 720px) {
@@ -244,12 +273,7 @@
       </article>
       <section id="graph-panel" hidden>
         <h2>Graph</h2>
-        <h3>Nodes</h3>
-        <ul id="graph-nodes"></ul>
-        <h3>Edges</h3>
-        <ul id="graph-edges"></ul>
-        <h3>Mermaid source</h3>
-        <pre id="mermaid" class="mermaid-source"></pre>
+        <div id="graph-canvas" class="diagram-canvas" aria-label="Related features graph"></div>
       </section>
     </main>
   </div>
@@ -257,6 +281,8 @@
     window.FEATURE_MAP = __VIEW_SNAPSHOT_JSON__;</script>
   <script>
     (function () {
+      var NS = "http://www.w3.org/2000/svg";
+      var diagramSeq = 0;
       var data = window.FEATURE_MAP || {};
       var emptyEl = document.getElementById("empty");
       var detailEl = document.getElementById("detail");
@@ -265,9 +291,7 @@
       var heading = document.getElementById("feature-heading");
       var slugLine = document.getElementById("feature-slug");
       var fieldsEl = document.getElementById("fields");
-      var nodesEl = document.getElementById("graph-nodes");
-      var edgesEl = document.getElementById("graph-edges");
-      var mermaidEl = document.getElementById("mermaid");
+      var graphCanvas = document.getElementById("graph-canvas");
 
       function maps() {
         return data.maps || {};
@@ -293,10 +317,411 @@
         return false;
       }
 
+      function looksLikeMermaid(text) {
+        var lines = String(text || "").split(/\n/);
+        var i;
+        var line;
+        for (i = 0; i < lines.length; i += 1) {
+          line = lines[i].replace(/^\s+/, "").replace(/\s+$/, "");
+          if (!line || line.indexOf("%%") === 0) continue;
+          return /^(graph|flowchart|sequenceDiagram|classDiagram|stateDiagram(?:-v2)?|erDiagram|gantt|pie|mindmap|journey|gitGraph)\b/.test(line);
+        }
+        return false;
+      }
+
+      function mermaidFences(text) {
+        var blocks = [];
+        var re = /```mermaid\s*([\s\S]*?)```/gi;
+        var match;
+        while ((match = re.exec(text))) {
+          if (match[1] && match[1].replace(/^\s+|\s+$/g, "")) {
+            blocks.push(match[1].replace(/^\s+|\s+$/g, ""));
+          }
+        }
+        return blocks;
+      }
+
+      function mermaidSources(text) {
+        var fences = mermaidFences(text);
+        if (fences.length) return fences;
+        if (looksLikeMermaid(text)) return [String(text).replace(/^\s+|\s+$/g, "")];
+        return [];
+      }
+
+      function proseWithoutMermaid(text) {
+        var stripped = String(text || "").replace(/```mermaid\s*[\s\S]*?```/gi, "");
+        if (looksLikeMermaid(text) && !mermaidFences(text).length) return "";
+        return stripped.replace(/^\s+|\s+$/g, "");
+      }
+
+      function parseNodeToken(token) {
+        var raw = String(token || "").replace(/\|[^|]*\|/g, "").replace(/^\s+|\s+$/g, "");
+        var match = raw.match(/^([A-Za-z][A-Za-z0-9_]*)\s*\[\s*"?([^\]"]*?)"?\s*\]$/);
+        if (match) return { id: match[1], label: match[2] };
+        match = raw.match(/^([A-Za-z][A-Za-z0-9_]*)\s*\(\s*"?([^)"]*?)"?\s*\)$/);
+        if (match) return { id: match[1], label: match[2] };
+        match = raw.match(/^([A-Za-z][A-Za-z0-9_]*)\s*\{\s*"?([^}"]*?)"?\s*\}$/);
+        if (match) return { id: match[1], label: match[2] };
+        match = raw.match(/^([A-Za-z][A-Za-z0-9_]*)$/);
+        if (match) return { id: match[1], label: match[1] };
+        var id = raw.replace(/[^A-Za-z0-9_]/g, "_") || "node";
+        if (/^[0-9]/.test(id)) id = "n_" + id;
+        return { id: id, label: raw || id };
+      }
+
+      function parseMermaid(source) {
+        var result = { direction: "LR", nodes: [], edges: [] };
+        var nodeMap = {};
+        function ensure(id, label) {
+          if (!nodeMap[id]) {
+            nodeMap[id] = { id: id, label: label || id };
+            result.nodes.push(nodeMap[id]);
+          } else if (label && label !== id) {
+            nodeMap[id].label = label;
+          }
+          return nodeMap[id];
+        }
+        var lines = String(source || "").split(/\n/);
+        var i;
+        var line;
+        var header;
+        var edge;
+        var left;
+        var right;
+        var standalone;
+        for (i = 0; i < lines.length; i += 1) {
+          line = lines[i].replace(/%%.*/, "").replace(/^\s+|\s+$/g, "");
+          if (!line) continue;
+          header = line.match(/^(?:graph|flowchart)\s+(LR|RL|TD|TB|BT)\b/i);
+          if (header) {
+            result.direction = header[1].toUpperCase() === "TB" ? "TD" : header[1].toUpperCase();
+            continue;
+          }
+          if (/^(graph|flowchart)\b/i.test(line)) continue;
+          if (/^(sequenceDiagram|classDiagram|stateDiagram(?:-v2)?|erDiagram|gantt|pie|mindmap|journey|gitGraph)\b/.test(line)) {
+            continue;
+          }
+          edge = line.match(/^(.+?)\s*(-->|---|==>|-.->)\s*(.+)$/);
+          if (edge) {
+            left = parseNodeToken(edge[1]);
+            right = parseNodeToken(edge[3]);
+            ensure(left.id, left.label);
+            ensure(right.id, right.label);
+            result.edges.push({ from: left.id, to: right.id });
+            continue;
+          }
+          standalone = parseNodeToken(line);
+          if (standalone && /^[A-Za-z][A-Za-z0-9_]*$/.test(standalone.id) && line.indexOf(" ") === -1) {
+            ensure(standalone.id, standalone.label);
+          }
+        }
+        return result;
+      }
+
+      function svgEl(name, attrs) {
+        var el = document.createElementNS(NS, name);
+        Object.keys(attrs || {}).forEach(function (key) {
+          el.setAttribute(key, attrs[key]);
+        });
+        return el;
+      }
+
+      function measureLabel(label) {
+        var text = String(label || "");
+        var width = Math.max(96, Math.round(22 + text.length * 7.2));
+        return { width: Math.min(width, 220), height: 38 };
+      }
+
+      function connectedComponents(nodes, edges) {
+        var ids = nodes.map(function (node) { return node.id; });
+        var parent = {};
+        ids.forEach(function (id) { parent[id] = id; });
+        function find(id) {
+          if (parent[id] !== id) parent[id] = find(parent[id]);
+          return parent[id];
+        }
+        function union(a, b) {
+          var pa = find(a);
+          var pb = find(b);
+          if (pa !== pb) parent[pa] = pb;
+        }
+        edges.forEach(function (edge) {
+          if (parent[edge.from] != null && parent[edge.to] != null) {
+            union(edge.from, edge.to);
+          }
+        });
+        var groups = {};
+        ids.forEach(function (id) {
+          var root = find(id);
+          if (!groups[root]) groups[root] = [];
+          groups[root].push(id);
+        });
+        return Object.keys(groups).map(function (key) { return groups[key]; });
+      }
+
+      function layoutGraph(graph) {
+        var nodes = graph.nodes || [];
+        var edges = graph.edges || [];
+        var direction = graph.direction || "LR";
+        var vertical = direction === "TD" || direction === "BT";
+        var reverse = direction === "RL" || direction === "BT";
+        var byId = {};
+        nodes.forEach(function (node) {
+          byId[node.id] = node;
+          node._size = measureLabel(node.label);
+        });
+        var outgoing = {};
+        var incoming = {};
+        nodes.forEach(function (node) {
+          outgoing[node.id] = [];
+          incoming[node.id] = [];
+        });
+        edges.forEach(function (edge) {
+          if (!byId[edge.from] || !byId[edge.to]) return;
+          outgoing[edge.from].push(edge.to);
+          incoming[edge.to].push(edge.from);
+        });
+
+        var placed = {};
+        var pad = 32;
+        var rankGap = 80;
+        var siblingGap = 28;
+        var cursorY = pad;
+        var maxX = 0;
+        var maxY = 0;
+
+        connectedComponents(nodes, edges).forEach(function (ids) {
+          var rank = {};
+          var roots = ids.filter(function (id) { return incoming[id].length === 0; });
+          if (!roots.length) roots = ids.slice().sort();
+          var queue = [];
+          roots.forEach(function (id) {
+            rank[id] = 0;
+            queue.push(id);
+          });
+          while (queue.length) {
+            var current = queue.shift();
+            outgoing[current].forEach(function (next) {
+              if (rank[next] == null) {
+                rank[next] = rank[current] + 1;
+                queue.push(next);
+              }
+            });
+          }
+          ids.forEach(function (id) {
+            if (rank[id] == null) rank[id] = 0;
+          });
+
+          var layers = {};
+          var maxRank = 0;
+          ids.forEach(function (id) {
+            maxRank = Math.max(maxRank, rank[id]);
+            if (!layers[rank[id]]) layers[rank[id]] = [];
+            layers[rank[id]].push(id);
+          });
+          Object.keys(layers).forEach(function (key) {
+            layers[key].sort();
+          });
+
+          var ranks = [];
+          var r;
+          for (r = 0; r <= maxRank; r += 1) ranks.push(r);
+          if (reverse) ranks.reverse();
+
+          if (vertical) {
+            var y = cursorY;
+            ranks.forEach(function (layerRank) {
+              var layer = layers[layerRank] || [];
+              var layerHeight = 0;
+              var x = pad;
+              layer.forEach(function (id) {
+                var size = byId[id]._size;
+                placed[id] = { x: x, y: y, width: size.width, height: size.height };
+                x += size.width + siblingGap;
+                layerHeight = Math.max(layerHeight, size.height);
+                maxX = Math.max(maxX, placed[id].x + size.width);
+                maxY = Math.max(maxY, placed[id].y + size.height);
+              });
+              y += layerHeight + rankGap;
+            });
+            cursorY = maxY + pad;
+          } else {
+            var xCol = pad;
+            var bottom = cursorY;
+            ranks.forEach(function (layerRank) {
+              var layer = layers[layerRank] || [];
+              var colWidth = 0;
+              layer.forEach(function (id) {
+                colWidth = Math.max(colWidth, byId[id]._size.width);
+              });
+              var y = cursorY;
+              layer.forEach(function (id) {
+                var size = byId[id]._size;
+                placed[id] = {
+                  x: xCol + Math.round((colWidth - size.width) / 2),
+                  y: y,
+                  width: size.width,
+                  height: size.height
+                };
+                y += size.height + siblingGap;
+                maxX = Math.max(maxX, placed[id].x + size.width);
+                maxY = Math.max(maxY, placed[id].y + size.height);
+              });
+              xCol += colWidth + rankGap;
+              bottom = Math.max(bottom, y);
+            });
+            cursorY = bottom + pad;
+          }
+        });
+
+        return {
+          placed: placed,
+          width: Math.max(maxX + pad, 320),
+          height: Math.max(maxY + pad, 180),
+          vertical: vertical
+        };
+      }
+
+      function edgeAnchor(box, toward, vertical) {
+        if (vertical) {
+          if (toward.y >= box.y + box.height / 2) {
+            return { x: box.x + box.width / 2, y: box.y + box.height };
+          }
+          return { x: box.x + box.width / 2, y: box.y };
+        }
+        if (toward.x >= box.x + box.width / 2) {
+          return { x: box.x + box.width, y: box.y + box.height / 2 };
+        }
+        return { x: box.x, y: box.y + box.height / 2 };
+      }
+
+      function renderDiagram(container, graph, options) {
+        while (container.firstChild) container.removeChild(container.firstChild);
+        options = options || {};
+        var nodes = graph.nodes || [];
+        var edges = graph.edges || [];
+        if (!nodes.length) {
+          var empty = document.createElement("p");
+          empty.className = "diagram-empty";
+          empty.textContent = "No graph nodes.";
+          container.appendChild(empty);
+          return;
+        }
+        var layout = layoutGraph(graph);
+        var svg = svgEl("svg", {
+          viewBox: "0 0 " + layout.width + " " + layout.height,
+          width: String(layout.width),
+          height: String(layout.height),
+          role: "img"
+        });
+        diagramSeq += 1;
+        var markerId = "arrow-" + diagramSeq;
+        var defs = svgEl("defs");
+        var marker = svgEl("marker", {
+          id: markerId,
+          viewBox: "0 0 10 10",
+          refX: "9",
+          refY: "5",
+          markerWidth: "7",
+          markerHeight: "7",
+          orient: "auto-start-reverse"
+        });
+        marker.appendChild(svgEl("path", { d: "M 0 0 L 10 5 L 0 10 z", fill: "currentColor" }));
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+
+        edges.forEach(function (edge) {
+          var from = layout.placed[edge.from];
+          var to = layout.placed[edge.to];
+          if (!from || !to) return;
+          var start = edgeAnchor(from, { x: to.x + to.width / 2, y: to.y + to.height / 2 }, layout.vertical);
+          var end = edgeAnchor(to, { x: from.x + from.width / 2, y: from.y + from.height / 2 }, layout.vertical);
+          var dx = Math.max(36, Math.abs(end.x - start.x) / 2);
+          var dy = Math.max(24, Math.abs(end.y - start.y) / 2);
+          var d;
+          if (layout.vertical) {
+            d = "M " + start.x + " " + start.y + " C " + start.x + " " + (start.y + dy) + ", " + end.x + " " + (end.y - dy) + ", " + end.x + " " + end.y;
+          } else if (end.x >= start.x) {
+            d = "M " + start.x + " " + start.y + " C " + (start.x + dx) + " " + start.y + ", " + (end.x - dx) + " " + end.y + ", " + end.x + " " + end.y;
+          } else {
+            d = "M " + start.x + " " + start.y + " C " + (start.x + 48) + " " + (start.y - 42) + ", " + (end.x - 48) + " " + (end.y - 42) + ", " + end.x + " " + end.y;
+          }
+          var path = svgEl("path", {
+            d: d,
+            "class": "graph-edge",
+            "marker-end": "url(#" + markerId + ")"
+          });
+          svg.appendChild(path);
+        });
+
+        nodes.forEach(function (node) {
+          var box = layout.placed[node.id];
+          if (!box) return;
+          var group = svgEl("g", { "class": "graph-node" });
+          if (node.missing) group.setAttribute("class", "graph-node missing passive");
+          if (options.selected && options.selected === node.id) {
+            group.setAttribute("class", (group.getAttribute("class") || "graph-node") + " selected");
+          }
+          group.setAttribute("tabindex", node.missing ? "-1" : "0");
+          group.setAttribute("role", node.missing ? "img" : "button");
+          group.setAttribute("aria-label", node.label);
+          group.appendChild(svgEl("rect", {
+            x: String(box.x),
+            y: String(box.y),
+            width: String(box.width),
+            height: String(box.height),
+            rx: "8",
+            ry: "8"
+          }));
+          var text = svgEl("text", {
+            x: String(box.x + box.width / 2),
+            y: String(box.y + box.height / 2 + 4),
+            "text-anchor": "middle"
+          });
+          text.textContent = node.label;
+          group.appendChild(text);
+          if (!node.missing && typeof options.onNodeClick === "function") {
+            group.addEventListener("click", function () {
+              options.onNodeClick(node.id);
+            });
+            group.addEventListener("keydown", function (event) {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                options.onNodeClick(node.id);
+              }
+            });
+          }
+          svg.appendChild(group);
+        });
+        container.appendChild(svg);
+      }
+
+      function appendMermaid(parent, source) {
+        var canvas = document.createElement("div");
+        canvas.className = "diagram-canvas mermaid-diagram";
+        canvas.setAttribute("aria-label", "Mermaid diagram");
+        parent.appendChild(canvas);
+        renderDiagram(canvas, parseMermaid(source), {});
+      }
+
       function appendTextValue(parent, value) {
-        var node = document.createElement("span");
-        node.textContent = value == null ? "" : String(value);
-        parent.appendChild(node);
+        var text = value == null ? "" : String(value);
+        var sources = mermaidSources(text);
+        if (sources.length) {
+          sources.forEach(function (source) {
+            appendMermaid(parent, source);
+          });
+          var prose = proseWithoutMermaid(text);
+          if (prose) {
+            var node = document.createElement("span");
+            node.textContent = prose;
+            parent.appendChild(node);
+          }
+          return;
+        }
+        var span = document.createElement("span");
+        span.textContent = text;
+        parent.appendChild(span);
       }
 
       function appendObject(parent, obj) {
@@ -336,7 +761,7 @@
           } else if (item !== null && typeof item === "object") {
             appendValue(li, key, item, map);
           } else {
-            li.textContent = item == null ? "" : String(item);
+            appendValue(li, key, item, map);
           }
           ul.appendChild(li);
         });
@@ -367,14 +792,7 @@
           btn.type = "button";
           btn.className = "slug-btn";
           btn.setAttribute("aria-current", slug === data.selected ? "true" : "false");
-          var name = document.createElement("span");
-          name.className = "slug";
-          name.textContent = slug;
-          var purpose = document.createElement("span");
-          purpose.className = "purpose";
-          purpose.textContent = map.purpose || "";
-          btn.appendChild(name);
-          btn.appendChild(purpose);
+          btn.textContent = map.feature_name || slug;
           btn.addEventListener("click", function () {
             select(slug);
           });
@@ -398,29 +816,58 @@
         });
       }
 
-      function renderGraph() {
+      function snapshotGraph() {
         var graph = data.graph || {};
-        while (nodesEl.firstChild) nodesEl.removeChild(nodesEl.firstChild);
-        while (edgesEl.firstChild) edgesEl.removeChild(edgesEl.firstChild);
-        (graph.nodes || []).forEach(function (node) {
-          var li = document.createElement("li");
-          var btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "node-btn";
-          btn.textContent = node;
-          btn.addEventListener("click", function () {
-            select(node);
+        var seen = {};
+        var nodes = [];
+        function addNode(id) {
+          if (!id || seen[id]) return;
+          seen[id] = true;
+          var map = maps()[id] || {};
+          nodes.push({
+            id: id,
+            label: map.feature_name || id,
+            missing: !maps()[id]
           });
-          li.appendChild(btn);
-          nodesEl.appendChild(li);
-        });
+        }
+        (graph.nodes || []).forEach(addNode);
         (graph.edges || []).forEach(function (edge) {
-          var li = document.createElement("li");
-          li.className = "edge";
-          li.textContent = (edge.from || "") + " → " + (edge.to || "");
-          edgesEl.appendChild(li);
+          addNode(edge.from);
+          addNode(edge.to);
         });
-        mermaidEl.textContent = graph.mermaid || "";
+        var parsed = parseMermaid(graph.mermaid || "");
+        parsed.nodes.forEach(function (node) { addNode(node.id); });
+        var edges = [];
+        function addEdge(from, to) {
+          if (!from || !to) return;
+          var i;
+          for (i = 0; i < edges.length; i += 1) {
+            if (edges[i].from === from && edges[i].to === to) return;
+          }
+          addNode(from);
+          addNode(to);
+          edges.push({ from: from, to: to });
+        }
+        (graph.edges || []).forEach(function (edge) {
+          addEdge(edge.from, edge.to);
+        });
+        parsed.edges.forEach(function (edge) {
+          addEdge(edge.from, edge.to);
+        });
+        return {
+          direction: parsed.direction || "LR",
+          nodes: nodes,
+          edges: edges
+        };
+      }
+
+      function renderGraph() {
+        renderDiagram(graphCanvas, snapshotGraph(), {
+          selected: data.selected,
+          onNodeClick: function (id) {
+            select(id);
+          }
+        });
       }
 
       function render() {

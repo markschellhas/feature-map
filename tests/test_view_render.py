@@ -26,6 +26,27 @@ class ViewRenderTests(FeaturemapTestCase):
         self.assertNotIn("__VIEW_SNAPSHOT_JSON__", html)
         self.assertIn(snapshot["maps"]["auth"]["purpose"], html)
 
+    def test_sidebar_renders_titles_without_purpose_description(self):
+        html, snapshot, _repo = self._html()
+        self.assertIn("map.feature_name || slug", html)
+        self.assertNotIn('purpose.className = "purpose"', html)
+        self.assertNotIn("btn.appendChild(purpose)", html)
+        self.assertIn(snapshot["maps"]["auth"]["feature_name"], html)
+
+    def test_graph_and_mermaid_use_diagram_canvas_not_source(self):
+        html, snapshot, _repo = self._html(
+            "\nflow:\n  |\n    graph LR\n      start --> done\n"
+        )
+        self.assertIn('id="graph-canvas"', html)
+        self.assertIn("diagram-canvas", html)
+        self.assertIn("parseMermaid", html)
+        self.assertNotIn("Mermaid source", html)
+        self.assertNotIn("mermaid-source", html)
+        self.assertNotIn('id="graph-nodes"', html)
+        self.assertNotIn('id="graph-edges"', html)
+        self.assertIn("graph LR", html)
+        self.assertIn("start --> done", snapshot["maps"]["auth"]["fields"][-1]["value"])
+
     def test_html_escapes_script_breakout_in_json(self):
         repo = self.copy_repo()
         path = repo / ".features" / "auth.yaml"

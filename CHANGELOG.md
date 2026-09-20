@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Viewer sidebar lists each map's title only (`feature_name`), not the purpose
+  description.
+- Viewer renders related-feature graphs and Mermaid as diagrams on a canvas,
+  instead of Mermaid source plus node/edge lists.
+
 ## [1.2.0] — 2026-09-20
 
 ### Added
