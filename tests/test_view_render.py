@@ -33,6 +33,13 @@ class ViewRenderTests(FeaturemapTestCase):
         self.assertNotIn("btn.appendChild(purpose)", html)
         self.assertIn(snapshot["maps"]["auth"]["feature_name"], html)
 
+    def test_sidebar_includes_search_filter(self):
+        html, _snapshot, _repo = self._html()
+        self.assertIn('id="sidebar-search"', html)
+        self.assertIn('type="search"', html)
+        self.assertIn("matchesSearch", html)
+        self.assertIn("No matching maps.", html)
+
     def test_graph_and_mermaid_use_diagram_canvas_not_source(self):
         html, snapshot, _repo = self._html(
             "\nflow:\n  |\n    graph LR\n      start --> done\n"
