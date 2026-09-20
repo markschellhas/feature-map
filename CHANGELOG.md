@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-09-20
+
 ### Added
 
 - `feature-map viewer` opens a local, read-only browser view of `.features/*.yaml`.
@@ -91,6 +93,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `init` writes `<!-- feature-map:start -->` in `AGENTS.md` and migrates the
   older `<!-- featuremap:start -->` block.
 
-[Unreleased]: https://github.com/markschellhas/feature-map/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/markschellhas/feature-map/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/markschellhas/feature-map/releases/tag/v1.2.0
 [1.1.0]: https://github.com/markschellhas/feature-map/releases/tag/v1.1.0
 [1.0.0]: https://github.com/markschellhas/feature-map/releases/tag/v1.0.0
