@@ -3,8 +3,8 @@ class FeatureMap < Formula
 
   desc "Cross-app architecture research CLI"
   homepage "https://github.com/markschellhas/feature-map"
-  url "https://files.pythonhosted.org/packages/a3/09/a83de5d19b52cc617145505956f75ec34b5172952584ce5c76ff8f8bb717/feature_map_cli-1.2.0.tar.gz"
-  sha256 "3535a21a0515cd500ef072137230c4e2aea7ee5ad56a11256d4cf63a0e8b6cfa"
+  url "https://files.pythonhosted.org/packages/12/e5/19402772fba234d12f15a9ad96353542902301f561af287d709ebd66b977/feature_map_cli-1.2.5.tar.gz"
+  sha256 "db504e958e28a5eedfe7c6507e0f2156ca8952e7f5a5274d5778b7a6138181d8"
   license "MIT"
   head "https://github.com/markschellhas/feature-map.git", branch: "master"
 
