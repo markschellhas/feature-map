@@ -1,4 +1,6 @@
 import json
+import shutil
+import subprocess
 import unittest
 
 from helpers import FeaturemapTestCase
@@ -28,10 +30,49 @@ class ViewRenderTests(FeaturemapTestCase):
 
     def test_sidebar_renders_titles_without_purpose_description(self):
         html, snapshot, _repo = self._html()
-        self.assertIn("map.feature_name || slug", html)
+        self.assertIn("featureTitle(map.feature_name || slug)", html)
         self.assertNotIn('purpose.className = "purpose"', html)
         self.assertNotIn("btn.appendChild(purpose)", html)
         self.assertIn(snapshot["maps"]["auth"]["feature_name"], html)
+
+    def test_feature_header_and_sidebar_use_human_friendly_titles(self):
+        html, _snapshot, _repo = self._html()
+        self.assertIn("function featureTitle(name)", html)
+        self.assertIn('.replace(/_+/g, " ")', html)
+        self.assertIn("ch.toUpperCase()", html)
+        self.assertIn("featureTitle(map.feature_name || slug)", html)
+        self.assertIn('heading.textContent = featureTitle(map.feature_name || map.slug || "")', html)
+
+    @unittest.skipUnless(shutil.which("node"), "node not on PATH")
+    def test_feature_title_formats_user_signup(self):
+        html, _snapshot, _repo = self._html()
+        start = html.index("function featureTitle(name) {")
+        depth = 0
+        end = None
+        for index, char in enumerate(html[start:], start):
+            if char == "{":
+                depth += 1
+            elif char == "}":
+                depth -= 1
+                if depth == 0:
+                    end = index + 1
+                    break
+        self.assertIsNotNone(end)
+        script = (
+            html[start:end]
+            + "\n"
+            + "const assert = require('assert');\n"
+            + "assert.strictEqual(featureTitle('user_signup'), 'User Signup');\n"
+            + "assert.strictEqual(featureTitle('auth'), 'Auth');\n"
+            + "assert.strictEqual(featureTitle('USER_SIGNUP'), 'User Signup');\n"
+            + "assert.strictEqual(featureTitle('already friendly'), 'Already Friendly');\n"
+        )
+        result = subprocess.run(
+            ["node", "--input-type=commonjs", "-e", script],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_sidebar_includes_search_filter(self):
         html, _snapshot, _repo = self._html()

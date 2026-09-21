@@ -448,6 +448,16 @@
           });
       }
 
+      function featureTitle(name) {
+        return String(name || "")
+          .replace(/_+/g, " ")
+          .replace(/^\s+|\s+$/g, "")
+          .toLowerCase()
+          .replace(/(^|\s)(\S)/g, function (_all, space, ch) {
+            return space + ch.toUpperCase();
+          });
+      }
+
       function isStale(map, path) {
         var stale = map && map.stale_paths ? map.stale_paths : [];
         var i;
@@ -933,9 +943,11 @@
       function matchesSearch(slug, map, q) {
         if (!q) return true;
         var name = (map.feature_name || "").toLowerCase();
+        var title = featureTitle(map.feature_name || slug).toLowerCase();
         var purpose = (map.purpose || "").toLowerCase();
         return slug.toLowerCase().indexOf(q) !== -1
           || name.indexOf(q) !== -1
+          || title.indexOf(q) !== -1
           || purpose.indexOf(q) !== -1;
       }
 
@@ -951,7 +963,7 @@
           btn.type = "button";
           btn.className = "slug-btn";
           btn.setAttribute("aria-current", slug === data.selected ? "true" : "false");
-          btn.textContent = map.feature_name || slug;
+          btn.textContent = featureTitle(map.feature_name || slug);
           btn.addEventListener("click", function () {
             select(slug);
           });
@@ -963,7 +975,7 @@
       }
 
       function renderDetail(map) {
-        heading.textContent = map.feature_name || map.slug || "";
+        heading.textContent = featureTitle(map.feature_name || map.slug || "");
         slugLine.textContent = map.slug || "";
         while (fieldsEl.firstChild) fieldsEl.removeChild(fieldsEl.firstChild);
         (map.fields || []).forEach(function (field) {
