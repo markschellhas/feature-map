@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.7] — 2026-09-26
+
+### Added
+
+- `feature-map idea` captures a product idea (interactive multi-line prompt,
+  positional text, or stdin) and writes it to `docs/ideas/YYYY-MM-DD-<slug>.md`,
+  creating the directory if needed.
+
 ## [1.2.6] — 2026-09-21
 
 ### Changed
@@ -118,7 +126,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `init` writes `<!-- feature-map:start -->` in `AGENTS.md` and migrates the
   older `<!-- featuremap:start -->` block.
 
-[Unreleased]: https://github.com/markschellhas/feature-map/compare/v1.2.6...HEAD
+[Unreleased]: https://github.com/markschellhas/feature-map/compare/v1.2.7...HEAD
+[1.2.7]: https://github.com/markschellhas/feature-map/releases/tag/v1.2.7
 [1.2.6]: https://github.com/markschellhas/feature-map/releases/tag/v1.2.6
 [1.2.5]: https://github.com/markschellhas/feature-map/releases/tag/v1.2.5
 [1.2.0]: https://github.com/markschellhas/feature-map/releases/tag/v1.2.0

@@ -27,6 +27,7 @@ Global flags: `--json`, `--version`
 | `install [--json]` | Verify install and repo setup; reports every skill
 location and the packaged `GUIDE.md` path |
 | `update [--json]` | Upgrade this CLI via the package manager that installed it |
+| `idea [text] [--json]` | Capture an idea as markdown in `docs/ideas/` (creates the folder). Omit `text` to type multiple lines; finish with an empty line or Ctrl-D |
 
 ## Examples
 
@@ -46,6 +47,8 @@ feature-map init
 feature-map init -y -h claude
 feature-map init billing --force
 feature-map update
+feature-map idea
+feature-map idea "add a command that captures product ideas"
 ```
 
 ## Exit codes

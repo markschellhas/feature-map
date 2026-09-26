@@ -80,6 +80,7 @@ feature-map init --upgrade-skill
 | `init <name> [--force]` | Scaffold a map from the template |
 | `install` | Setup status |
 | `update` | Upgrade this CLI via pip, npm, brew, pipx, or uv |
+| `idea [text]` | Capture a multi-line idea into `docs/ideas/` |
 | `--json` / `--version` | Machine output / version |
 
 Exit codes: `0` ok, `1` user error, `2` validation failure (`--strict`).

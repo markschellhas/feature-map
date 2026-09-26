@@ -36,19 +36,25 @@ class FeaturemapTestCase(unittest.TestCase):
         (repo / ".git").mkdir()
         return repo
 
-    def run_cli(self, args, cwd=None, check=False, env=None):
+    def run_cli(self, args, cwd=None, check=False, env=None, stdin=None):
         merged_env = os.environ.copy()
         if env:
             merged_env.update(env)
         merged_env["PYTHONPATH"] = str(SRC) + os.pathsep + merged_env.get("PYTHONPATH", "")
+        run_kwargs = {
+            "cwd": str(cwd or self.tmpdir),
+            "env": merged_env,
+            "capture_output": True,
+            "text": True,
+            "check": check,
+        }
+        if stdin is None:
+            run_kwargs["stdin"] = subprocess.DEVNULL
+        else:
+            run_kwargs["input"] = stdin
         result = subprocess.run(
             [sys.executable, "-m", "feature_map", *args],
-            cwd=str(cwd or self.tmpdir),
-            env=merged_env,
-            capture_output=True,
-            text=True,
-            check=check,
-            stdin=subprocess.DEVNULL,
+            **run_kwargs,
         )
         return result
 

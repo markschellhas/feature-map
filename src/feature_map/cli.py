@@ -6,6 +6,7 @@ from feature_map._version import __version__
 from feature_map.commands.check_cmd import run_check
 from feature_map.commands.find_cmd import run_find
 from feature_map.commands.graph_cmd import run_graph
+from feature_map.commands.idea_cmd import run_idea
 from feature_map.commands.impact_cmd import run_impact
 from feature_map.commands.init_cmd import run_bootstrap, run_init_map
 from feature_map.commands.install_cmd import run_install
@@ -37,9 +38,10 @@ COMMANDS = {
     "install",
     "update",
     "viewer",
+    "idea",
 }
 
-OPTIONAL_FEATURES_COMMANDS = {"init", "install", "update"}
+OPTIONAL_FEATURES_COMMANDS = {"init", "install", "update", "idea"}
 
 
 def _release_short_help(subparser):
@@ -124,6 +126,21 @@ def build_parser():
     )
 
     subparsers.add_parser("stats", help="Coverage statistics")
+
+    idea_parser = subparsers.add_parser(
+        "idea",
+        help="Capture a product idea as markdown under docs/ideas/",
+        description=(
+            "Prompt for a multi-line idea (or take text from arguments/stdin) "
+            "and write it to docs/ideas/YYYY-MM-DD-<slug>.md, creating the "
+            "directory if needed."
+        ),
+    )
+    idea_parser.add_argument(
+        "text",
+        nargs="*",
+        help="Idea text (omit to type it interactively)",
+    )
 
     init_parser = subparsers.add_parser(
         "init",
@@ -270,6 +287,11 @@ def dispatch(args):
             no_open=getattr(args, "no_open", False),
             timeout=timeout,
         )
+
+    if command == "idea":
+        words = getattr(args, "text", None) or []
+        provided = " ".join(words).strip() or None
+        return 0, run_idea(repo_root, text=provided, as_json=as_json)
 
     if command == "init":
         if getattr(args, "name", None):

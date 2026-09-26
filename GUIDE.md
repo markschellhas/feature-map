@@ -272,7 +272,7 @@ The formula should leave `feature-map` on PATH and, when possible, install
 
 ### 2.4 Versioning
 
-- Semver on the CLI (`feature-map --version`, today `1.2.6`)
+- Semver on the CLI (`feature-map --version`, today `1.2.7`)
 - Skill frontmatter `version:` should match the CLI version
 - Record changes in `CHANGELOG.md`
 - Consumer repos may pin `min_cli_version` in `.feature-map.yaml`
